@@ -123,6 +123,25 @@ button {
   border-bottom: 1px solid #eee;
 }
 
+#pagamento div {
+  font-size: 16px;
+  padding: 6px 0;
+  border-bottom: 1px solid #eee;
+}
+
+#data div {
+  font-size: 16px;
+  padding: 6px 0;
+  border-bottom: 1px solid #eee;
+}
+
+#orario div {
+  font-size: 16px;
+  padding: 6px 0;
+  border-bottom: 1px solid #eee;
+}
+
+
 #tavolo div {
   font-size: 16px;
   padding: 6px 0;
