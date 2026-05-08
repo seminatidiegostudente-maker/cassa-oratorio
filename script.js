@@ -18,6 +18,7 @@ const db = firebase.database();
 // ================= PRODOTTI BASE =================
 
 const prodottiBase = [
+  { name: " Pasta", price: 5, max: 50 },
   { name: "🐟 Pesce", price: 8, max: 20 },
   { name: "🍗 Pollo", price: 6, max: 15 },
   { name: "🥩 Carne", price: 7, max: 30 },
