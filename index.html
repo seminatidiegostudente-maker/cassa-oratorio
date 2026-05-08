@@ -7,6 +7,7 @@
 
   <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
 
 <div class="container">
@@ -39,23 +40,41 @@
     <div id="summary"></div>
 
     <h2>💰 TOTALE</h2>
+
     <div id="grandTotal">€0.00</div>
 
     <hr>
 
     <h3>👨‍👩‍👧 Famiglia</h3>
-    <input type="text" id="famigliaInput" placeholder="Nome famiglia">
+
+    <input
+      type="text"
+      id="famigliaInput"
+      placeholder="Nome famiglia"
+    >
 
     <h3>🪑 Tavolo</h3>
-    <input type="number" id="tavoloInput" placeholder="Numero tavolo">
+
+    <input
+      type="number"
+      id="tavoloInput"
+      placeholder="Numero tavolo"
+    >
 
     <hr>
 
     <h3>💳 Pagamento</h3>
 
     <div class="payButtons">
-      <button id="cashBtn">💵 Contanti</button>
-      <button id="posBtn">💳 POS</button>
+
+      <button id="cashBtn">
+        💵 Contanti
+      </button>
+
+      <button id="posBtn">
+        💳 POS
+      </button>
+
     </div>
 
     <div id="cashArea">
@@ -85,6 +104,7 @@
 </div>
 
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
 
 <script src="script.js"></script>
