@@ -4,13 +4,16 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Cassa CRE</title>
+
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
 <div class="container">
 
+  <!-- SINISTRA -->
   <div class="left">
+
     <h1>🍽️ CASSA CRE</h1>
 
     <div id="items"></div>
@@ -27,25 +30,64 @@
 
   </div>
 
+
+  <!-- DESTRA -->
   <div class="right">
+
     <h1>🧾 ORDINE</h1>
+
     <div id="summary"></div>
+
     <h2>💰 TOTALE</h2>
-   <div id="grandTotal">€0.00</div>
-    <div id="famiglia"></div>
-    <h2>FAMIGLIA: .....</h2>
-    <div id="tavolo"></div>
-    <h2>TAVOLO: ....</h2>
-    <div id="pagamento"></div>
-    <h2>PAGAMENTO: ....</h2>
-    <div id="data"></div>
-    <h2>DATA: ....</h2>
-    <div id="orario"></div>
-    <h2>ORARIO: ....</h2>
+    <div id="grandTotal">€0.00</div>
+
+    <hr>
+
+    <h3>👨‍👩‍👧 Famiglia</h3>
+    <input type="text" id="famigliaInput" placeholder="Nome famiglia">
+
+    <h3>🪑 Tavolo</h3>
+    <input type="number" id="tavoloInput" placeholder="Numero tavolo">
+
+    <hr>
+
+    <h3>💳 Pagamento</h3>
+
+    <div class="payButtons">
+      <button id="cashBtn">💵 Contanti</button>
+      <button id="posBtn">💳 POS</button>
+    </div>
+
+    <div id="cashArea">
+
+      <input
+        type="number"
+        id="cashGiven"
+        placeholder="Quanto dà il cliente"
+      >
+
+      <div class="restoBox">
+        Resto: €<span id="resto">0.00</span>
+      </div>
+
+    </div>
+
+    <hr>
+
+    <h3>📅 Data</h3>
+    <div id="dataLive"></div>
+
+    <h3>⏰ Orario</h3>
+    <div id="orarioLive"></div>
+
+  </div>
+
 </div>
 
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+
 <script src="script.js"></script>
+
 </body>
 </html>
