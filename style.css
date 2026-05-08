@@ -186,3 +186,11 @@ input {
 hr {
   margin: 20px 0;
 }
+
+.right {
+  overflow-y: auto;
+}
+
+input {
+  pointer-events: auto;
+}
