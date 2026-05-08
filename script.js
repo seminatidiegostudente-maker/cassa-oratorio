@@ -130,7 +130,7 @@ function render() {
 
     itemsContainer.appendChild(div);
 
-    // summary
+    // ================= ORDINE =================
     if (qty > 0) {
       const r = document.createElement("div");
       r.textContent = `${p.name} x${qty} = €${(qty * p.price).toFixed(2)}`;
@@ -138,8 +138,15 @@ function render() {
     }
   });
 
+  // ================= TOTALI =================
   totalEl.textContent = totale;
   totalPriceEl.textContent = totaleEuro.toFixed(2);
+
+  // 💰 TOTALE GRANDE (NUOVO)
+  const grandTotal = document.getElementById("grandTotal");
+  if (grandTotal) {
+    grandTotal.textContent = `€${totaleEuro.toFixed(2)}`;
+  }
 }
 
 
