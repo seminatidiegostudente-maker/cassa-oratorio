@@ -35,7 +35,10 @@ const itemsContainer = document.getElementById("items");
 const summary = document.getElementById("summary");
 const totalEl = document.getElementById("total");
 const totalPriceEl = document.getElementById("totalPrice");
+const grandTotalEl = document.getElementById("grandTotal");
 
+
+// ================= STATO =================
 let stato = [];
 let carrello = {};
 
@@ -130,7 +133,6 @@ function render() {
 
     itemsContainer.appendChild(div);
 
-    // ================= ORDINE =================
     if (qty > 0) {
       const r = document.createElement("div");
       r.textContent = `${p.name} x${qty} = €${(qty * p.price).toFixed(2)}`;
@@ -142,10 +144,8 @@ function render() {
   totalEl.textContent = totale;
   totalPriceEl.textContent = totaleEuro.toFixed(2);
 
-  // 💰 TOTALE GRANDE (NUOVO)
-  const grandTotal = document.getElementById("grandTotal");
-  if (grandTotal) {
-    grandTotal.textContent = `€${totaleEuro.toFixed(2)}`;
+  if (grandTotalEl) {
+    grandTotalEl.textContent = `€${totaleEuro.toFixed(2)}`;
   }
 }
 
