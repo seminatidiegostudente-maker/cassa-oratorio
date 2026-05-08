@@ -14,7 +14,7 @@ const db = firebase.database();
 
 
 // ================= PRODOTTI BASE =================
-const prodotti = [
+const prodottiBase = [
   { name: "🍝 Pasta", price: 5, max: 10 },
   { name: "🐟 Pesce", price: 8, max: 20 },
   { name: "🍗 Pollo", price: 6, max: 15 },
@@ -37,12 +37,13 @@ const totalEl = document.getElementById("total");
 const totalPriceEl = document.getElementById("totalPrice");
 
 let stato = [];
+let carrello = {};
 
 
-// ================= INIZIALIZZA DB =================
-db.ref("prodotti").once("value", snapshot => {
-  if (!snapshot.exists()) {
-    const init = prodotti.map(p => ({
+// ================= INIT DB =================
+db.ref("prodotti").once("value", snap => {
+  if (!snap.exists()) {
+    const init = prodottiBase.map(p => ({
       name: p.name,
       price: p.price,
       stock: p.max
@@ -52,16 +53,12 @@ db.ref("prodotti").once("value", snapshot => {
 });
 
 
-// ================= LETTURA LIVE =================
-db.ref("prodotti").on("value", snapshot => {
-  const data = snapshot.val();
+// ================= LIVE DATA =================
+db.ref("prodotti").on("value", snap => {
+  const data = snap.val();
 
   if (data) {
-    stato = data.map((p, i) => ({
-      ...p,
-      count: 0,
-      index: i
-    }));
+    stato = data;
     render();
   }
 });
@@ -78,8 +75,10 @@ function render() {
 
   stato.forEach((p, i) => {
 
-    totale += p.count;
-    totaleEuro += p.count * p.price;
+    const qty = carrello[i] || 0;
+
+    totale += qty;
+    totaleEuro += qty * p.price;
 
     const div = document.createElement("div");
     div.className = "item";
@@ -91,7 +90,7 @@ function render() {
 
       <div class="controls">
         <button class="minus">-</button>
-        <div class="count">${p.count}</div>
+        <div class="count">${qty}</div>
         <button class="plus">+</button>
       </div>
 
@@ -102,28 +101,30 @@ function render() {
     const plus = div.querySelector(".plus");
     const minus = div.querySelector(".minus");
 
-    // +++
+    // ================= + =================
     plus.onclick = () => {
-      if (p.stock > 0) {
-        p.stock--;
-        p.count--;
+      if (stato[i].stock > 0) {
 
-        db.ref("prodotti/" + p.index).update({
-          stock: p.stock
+        stato[i].stock--;
+        carrello[i] = (carrello[i] || 0) + 1;
+
+        db.ref("prodotti/" + i).update({
+          stock: stato[i].stock
         });
 
         render();
       }
     };
 
-    // ---
+    // ================= - =================
     minus.onclick = () => {
-      if (p.count > 0) {
-        p.stock++;
-        p.count++;
+      if (carrello[i] > 0) {
 
-        db.ref("prodotti/" + p.index).update({
-          stock: p.stock
+        stato[i].stock++;
+        carrello[i]--;
+
+        db.ref("prodotti/" + i).update({
+          stock: stato[i].stock
         });
 
         render();
@@ -132,9 +133,10 @@ function render() {
 
     itemsContainer.appendChild(div);
 
-    if (p.count > 0) {
+    // summary
+    if (qty > 0) {
       const r = document.createElement("div");
-      r.textContent = `${p.name} x${p.count} = €${(p.count * p.price).toFixed(2)}`;
+      r.textContent = `${p.name} x${qty} = €${(qty * p.price).toFixed(2)}`;
       summary.appendChild(r);
     }
   });
@@ -146,7 +148,7 @@ function render() {
 
 // ================= RESET =================
 document.getElementById("reset").onclick = () => {
-  stato.forEach(p => p.count = 0);
+  carrello = {};
   render();
 };
 
@@ -156,15 +158,11 @@ document.getElementById("confirm").onclick = () => {
 
   let testo = "🧾 RICEVUTA CRE\n\n";
 
-  stato.forEach(p => {
-    if (p.count > 0) {
-      testo += `${p.name} x${p.count} = €${(p.count * p.price).toFixed(2)}\n`;
+  stato.forEach((p, i) => {
+    const qty = carrello[i] || 0;
 
-      const nuovoStock = p.stock;
-
-      db.ref("prodotti/" + p.index).update({
-        stock: nuovoStock
-      });
+    if (qty > 0) {
+      testo += `${p.name} x${qty} = €${(qty * p.price).toFixed(2)}\n`;
     }
   });
 
@@ -173,15 +171,9 @@ document.getElementById("confirm").onclick = () => {
   testo += `€${totalPriceEl.textContent}\n`;
 
   const win = window.open("", "", "width=400,height=600");
-
-  win.document.write(`
-    <pre style="font-size:18px;font-family:Arial;">
-${testo}
-    </pre>
-  `);
-
+  win.document.write(`<pre style="font-size:18px;font-family:Arial;">${testo}</pre>`);
   win.print();
 
-  stato.forEach(p => p.count = 0);
+  carrello = {};
   render();
 };
