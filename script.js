@@ -56,11 +56,10 @@ db.ref("prodotti").once("value", snap => {
 // ================= LIVE DATA =================
 db.ref("prodotti").on("value", snap => {
   const data = snap.val();
+  if (!data) return;
 
-  if (data) {
-    stato = data;
-    render();
-  }
+  stato = data;
+  render();
 });
 
 
@@ -103,32 +102,30 @@ function render() {
 
     // ================= + =================
     plus.onclick = () => {
-      if (stato[i].stock > 0) {
+      if (stato[i].stock <= 0) return;
 
-        stato[i].stock--;
-        carrello[i] = (carrello[i] || 0) + 1;
+      stato[i].stock--;
+      carrello[i] = (carrello[i] || 0) + 1;
 
-        db.ref("prodotti/" + i).update({
-          stock: stato[i].stock
-        });
+      db.ref("prodotti/" + i).update({
+        stock: stato[i].stock
+      });
 
-        render();
-      }
+      render();
     };
 
     // ================= - =================
     minus.onclick = () => {
-      if (carrello[i] > 0) {
+      if (!carrello[i] || carrello[i] <= 0) return;
 
-        stato[i].stock++;
-        carrello[i]--;
+      stato[i].stock++;
+      carrello[i]--;
 
-        db.ref("prodotti/" + i).update({
-          stock: stato[i].stock
-        });
+      db.ref("prodotti/" + i).update({
+        stock: stato[i].stock
+      });
 
-        render();
-      }
+      render();
     };
 
     itemsContainer.appendChild(div);
