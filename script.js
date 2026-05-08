@@ -312,6 +312,9 @@ document.getElementById("confirm").onclick = () => {
   const tavolo =
     document.getElementById("tavoloInput").value;
 
+  const persone =
+    document.getElementById("personeInput").value;
+
   const data =
     document.getElementById("dataLive").textContent;
 
@@ -323,6 +326,8 @@ document.getElementById("confirm").onclick = () => {
   testo += `Famiglia: ${famiglia}\n`;
 
   testo += `Tavolo: ${tavolo}\n`;
+
+  testo += `Persone: ${persone}\n`;
 
   testo += `Pagamento: ${metodoPagamento}\n`;
 
@@ -373,6 +378,8 @@ ${testo}
   document.getElementById("famigliaInput").value = "";
 
   document.getElementById("tavoloInput").value = "";
+
+  document.getElementById("personeInput").value = "";
 
   cashGiven.value = "";
 
