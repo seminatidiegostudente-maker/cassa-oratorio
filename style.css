@@ -18,7 +18,8 @@ body {
   width: 32%;
 }
 
-.left, .right {
+.left,
+.right {
   background: white;
   padding: 18px;
   border-radius: 14px;
@@ -30,14 +31,17 @@ h1 {
   margin: 0 0 10px 0;
 }
 
-/* PRODOTTI */
+/* ================= PRODOTTI ================= */
+
 .item {
   display: grid;
   grid-template-columns: 1fr auto auto auto;
   align-items: center;
   gap: 12px;
+
   padding: 12px;
   margin-bottom: 10px;
+
   border-radius: 10px;
   border: 2px solid #ddd;
 }
@@ -52,7 +56,8 @@ h1 {
   font-weight: bold;
 }
 
-/* BOTTONI */
+/* ================= CONTROLS ================= */
+
 .controls {
   display: flex;
   align-items: center;
@@ -62,7 +67,9 @@ h1 {
 .controls button {
   width: 50px;
   height: 50px;
+
   font-size: 24px;
+
   border-radius: 8px;
   cursor: pointer;
 }
@@ -73,19 +80,22 @@ h1 {
   text-align: center;
 }
 
-.price, .max {
+.price,
+.max {
   font-size: 16px;
   font-weight: bold;
 }
 
-/* TOTALE */
+/* ================= TOTALE ================= */
+
 .totale {
   margin-top: 15px;
   font-size: 20px;
   font-weight: bold;
 }
 
-/* BOTTONI AZIONE */
+/* ================= BOTTONI ================= */
+
 .buttons {
   display: flex;
   gap: 10px;
@@ -94,10 +104,14 @@ h1 {
 
 button {
   flex: 1;
+
   height: 55px;
+
   font-size: 18px;
+
   border: none;
   border-radius: 10px;
+
   cursor: pointer;
 }
 
@@ -110,39 +124,9 @@ button {
   color: white;
 }
 
-/* ORDINE */
+/* ================= ORDINE ================= */
+
 #summary div {
-  font-size: 16px;
-  padding: 6px 0;
-  border-bottom: 1px solid #eee;
-}
-
-#famiglia div {
-  font-size: 16px;
-  padding: 6px 0;
-  border-bottom: 1px solid #eee;
-}
-
-#pagamento div {
-  font-size: 16px;
-  padding: 6px 0;
-  border-bottom: 1px solid #eee;
-}
-
-#data div {
-  font-size: 16px;
-  padding: 6px 0;
-  border-bottom: 1px solid #eee;
-}
-
-#orario div {
-  font-size: 16px;
-  padding: 6px 0;
-  border-bottom: 1px solid #eee;
-}
-
-
-#tavolo div {
   font-size: 16px;
   padding: 6px 0;
   border-bottom: 1px solid #eee;
@@ -154,4 +138,51 @@ button {
   text-align: right;
   margin-top: 10px;
   color: #2e7d32;
+}
+
+/* ================= INPUT ================= */
+
+input {
+  width: 100%;
+  height: 45px;
+
+  border-radius: 8px;
+  border: 2px solid #ddd;
+
+  padding: 10px;
+  box-sizing: border-box;
+
+  font-size: 18px;
+
+  margin-bottom: 10px;
+}
+
+/* ================= PAGAMENTO ================= */
+
+.payButtons {
+  display: flex;
+  gap: 10px;
+}
+
+.activePay {
+  background: #4caf50 !important;
+  color: white;
+}
+
+#cashArea {
+  margin-top: 10px;
+  display: none;
+}
+
+.restoBox {
+  margin-top: 10px;
+
+  font-size: 24px;
+  font-weight: bold;
+
+  color: #2e7d32;
+}
+
+hr {
+  margin: 20px 0;
 }
