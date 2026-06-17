@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cassa CRE</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="container">
+
+  <div class="left">
+    <h1>🍽️ CASSA CRE</h1>
+
+    <div id="items"></div>
+
+    <div class="totale">
+      Piatti: <span id="total">0</span> |
+      €<span id="totalPrice">0.00</span>
+    </div>
+
+    <div class="buttons">
+      <button id="reset">RESET</button>
+      <button id="confirm">CONFERMA</button>
+    </div>
+
+  </div>
+
+  <div class="right">
+    <h1>🧾 ORDINE</h1>
+    <div id="summary"></div>
+  </div>
+
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+<script src="script.js"></script>
+</body>
+</html>
