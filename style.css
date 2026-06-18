@@ -1,196 +1,337 @@
-body {
+/* ================= RESET E BASE STYLES ================= */
+* {
+  box-sizing: border-box;
   margin: 0;
-  font-family: Arial;
-  background: #eef1f5;
+  padding: 0;
 }
 
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  background-color: #f3f4f6;
+  color: #1f2937;
+  padding: 16px;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* Layout Principale a due colonne */
 .container {
   display: flex;
-  gap: 18px;
-  padding: 18px;
+  gap: 20px;
+  height: calc(100vh - 32px);
+  max-width: 1600px;
+  margin: 0 auto;
 }
 
-.left {
-  width: 68%;
-}
-
-.right {
-  width: 32%;
-}
-
-.left,
-.right {
+.left-panel {
+  flex: 2;
   background: white;
-  padding: 18px;
-  border-radius: 14px;
-  box-shadow: 0 5px 14px rgba(0,0,0,0.1);
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.right-panel {
+  flex: 1;
+  background: white;
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow-y: auto;
+  border-top: 6px solid #4f46e5;
+}
+
+/* Intestazioni */
+.header-main {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 2px solid #f3f4f6;
 }
 
 h1 {
-  font-size: 26px;
-  margin: 0 0 10px 0;
+  font-size: 24px;
+  font-weight: 800;
+  color: #111827;
 }
 
-/* ================= PRODOTTI ================= */
+h2 {
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 14px;
+  color: #374151;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.live-clock {
+  font-size: 14px;
+  color: #6b7280;
+  font-weight: 600;
+  background: #f3f4f6;
+  padding: 6px 12px;
+  border-radius: 20px;
+}
+
+/* ================= GRIGLIA PRODOTTI ================= */
+.items-grid {
+  flex: 1;
+  overflow-y: auto;
+  padding-right: 4px;
+}
 
 .item {
   display: grid;
-  grid-template-columns: 1fr auto auto auto;
+  grid-template-columns: 1fr auto;
   align-items: center;
-  gap: 12px;
+  gap: 16px;
+  padding: 14px 18px;
+  margin-bottom: 12px;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  transition: all 0.2s ease;
+}
 
-  padding: 12px;
-  margin-bottom: 10px;
-
-  border-radius: 10px;
-  border: 2px solid #ddd;
+.item:hover {
+  border-color: #cbd5e1;
 }
 
 .item.fine {
-  background: #ffb3b3;
-  border-color: red;
+  background-color: #fef2f2;
+  border-color: #fca5a5;
+}
+
+.item-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
 
 .name {
-  font-size: 20px;
-  font-weight: bold;
+  font-size: 17px;
+  font-weight: 600;
+  color: #1f2937;
 }
 
-/* ================= CONTROLS ================= */
+.item-meta {
+  display: flex;
+  gap: 12px;
+  font-size: 13px;
+  font-weight: 500;
+}
 
+.price {
+  color: #4f46e5;
+  font-weight: 700;
+}
+
+.max {
+  color: #6b7280;
+}
+
+.item.fine .max {
+  color: #dc2626;
+  font-weight: 700;
+}
+
+/* Controlli Più/Meno */
 .controls {
   display: flex;
   align-items: center;
-  gap: 8px;
+  background: #f3f4f6;
+  border-radius: 10px;
+  padding: 4px;
 }
 
 .controls button {
-  width: 50px;
-  height: 50px;
-
-  font-size: 24px;
-
-  border-radius: 8px;
+  width: 40px;
+  height: 40px;
+  border: none;
+  font-size: 20px;
+  font-weight: bold;
   cursor: pointer;
+  border-radius: 8px;
+  background: white;
+  color: #1f2937;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+}
+
+.controls button:active {
+  transform: scale(0.95);
+}
+
+.controls .minus { color: #dc2626; }
+.controls .plus { color: #16a34a; }
+
+.controls button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  background: #e5e7eb;
 }
 
 .count {
-  font-size: 22px;
-  width: 35px;
-  text-align: center;
-}
-
-.price,
-.max {
-  font-size: 16px;
-  font-weight: bold;
-}
-
-/* ================= TOTALE ================= */
-
-.totale {
-  margin-top: 15px;
-  font-size: 20px;
-  font-weight: bold;
-}
-
-/* ================= BOTTONI ================= */
-
-.buttons {
-  display: flex;
-  gap: 10px;
-  margin-top: 15px;
-}
-
-button {
-  flex: 1;
-
-  height: 55px;
-
   font-size: 18px;
+  font-weight: 700;
+  width: 45px;
+  text-align: center;
+  color: #111827;
+}
 
+/* ================= BARRA IN BASSO ================= */
+.bottom-bar {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 2px solid #f3f4f6;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.totale-parziale {
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.price-highlight {
+  color: #16a34a;
+  font-weight: 800;
+  font-size: 22px;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 12px;
+}
+
+button.btn-primary, button.btn-secondary {
+  height: 48px;
+  padding: 0 24px;
+  font-size: 16px;
+  font-weight: 700;
   border: none;
   border-radius: 10px;
-
   cursor: pointer;
+  transition: all 0.2s ease;
 }
 
-#reset {
-  background: orange;
+button.btn-primary { background: #16a34a; color: white; }
+button.btn-primary:hover { background: #15803d; }
+
+button.btn-secondary { background: #ea580c; color: white; }
+button.btn-secondary:hover { background: #c2410c; }
+
+/* ================= PANNELLO DESTRO ================= */
+.summary-box {
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 12px;
+  flex: 1;
+  min-height: 100px;
+  overflow-y: auto;
+  margin-bottom: 16px;
 }
 
-#confirm {
-  background: #4caf50;
-  color: white;
-}
-
-/* ================= ORDINE ================= */
-
-#summary div {
-  font-size: 16px;
+.summary-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
   padding: 6px 0;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid #f3f4f6;
+  font-weight: 500;
+}
+
+.grand-total-section {
+  background: #f0fdf4;
+  border: 2px dashed #16a34a;
+  border-radius: 12px;
+  padding: 14px;
+  text-align: center;
+  margin-bottom: 16px;
+}
+
+.grand-total-section span {
+  font-size: 12px;
+  font-weight: 700;
+  color: #166534;
+  letter-spacing: 1px;
 }
 
 #grandTotal {
-  font-size: 34px;
-  font-weight: bold;
-  text-align: right;
-  margin-top: 10px;
-  color: #2e7d32;
+  font-size: 36px;
+  font-weight: 900;
+  color: #166534;
+  margin-top: 4px;
 }
 
-/* ================= INPUT ================= */
+.form-group-row { display: flex; gap: 10px; margin-bottom: 16px; }
+.form-group { display: flex; flex-direction: column; gap: 6px; flex: 2; }
+.form-group.short { flex: 1; }
+label { font-size: 13px; font-weight: 700; color: #4b5563; }
 
 input {
   width: 100%;
-  height: 45px;
-
+  height: 42px;
+  border: 2px solid #e5e7eb;
   border-radius: 8px;
-  border: 2px solid #ddd;
+  padding: 8px 12px;
+  font-size: 16px;
+  font-weight: 600;
+  color: #111827;
+  outline: none;
+}
+input:focus { border-color: #4f46e5; }
 
-  padding: 10px;
-  box-sizing: border-box;
+/* ================= MODALITÀ DI PAGAMENTO ATTIVA ================= */
+.payment-section { margin-bottom: 16px; }
+.payButtons { display: flex; gap: 12px; margin-top: 6px; }
 
-  font-size: 18px;
+.pay-btn {
+  flex: 1;
+  height: 50px;
+  font-size: 16px;
+  font-weight: 700;
+  background: #f3f4f6;
+  color: #4b5563;
+  border: 2px solid #e5e7eb;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
 
+/* Richiesta utente: colore verde acceso se selezionato */
+.pay-btn.activePay {
+  background-color: #16a34a !important;
+  color: white !important;
+  border-color: #15803d !important;
+  box-shadow: 0 4px 10px rgba(22, 163, 74, 0.3);
+}
+
+.cash-calculator {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 14px;
   margin-bottom: 10px;
-}
-
-/* ================= PAGAMENTO ================= */
-
-.payButtons {
-  display: flex;
-  gap: 10px;
-}
-
-.activePay {
-  background: #4caf50 !important;
-  color: white;
-}
-
-#cashArea {
-  margin-top: 10px;
   display: none;
 }
 
-.restoBox {
-  margin-top: 10px;
-
-  font-size: 24px;
-  font-weight: bold;
-
-  color: #2e7d32;
+.quick-cash-buttons { display: flex; gap: 8px; margin-top: 8px; margin-bottom: 14px; }
+.btn-quick {
+  flex: 1; height: 34px; background: white; border: 1px solid #cbd5e1;
+  border-radius: 6px; font-weight: 700; font-size: 13px; color: #334155; cursor: pointer;
 }
+.btn-quick:hover { background: #f1f5f9; }
 
-hr {
-  margin: 20px 0;
-}
-
-.right {
-  overflow-y: auto;
-}
-
-input {
-  pointer-events: auto;
-}
+.restoBox { display: flex; justify-content: space-between; align-items: center; padding-top: 10px; border-top: 1px dashed #cbd5e1; }
+.restoBox span { font-size: 15px; font-weight: 700; color: #334155; }
+.restoBox .resto-value { font-size: 24px; font-weight: 900; color: #dc2626; }
