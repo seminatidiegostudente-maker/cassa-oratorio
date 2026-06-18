@@ -16,20 +16,18 @@ const db = firebase.database();
 
 
 // ================= PRODOTTI BASE =================
-
-const prodottiBase = [
-  { name: "🐟 Pesce", price: 8, max: 20 },
-  { name: "🍗 Pollo", price: 6, max: 15 },
-  { name: "🥩 Carne", price: 7, max: 30 },
-  { name: "🥔 Gnocchi", price: 5, max: 12 },
-  { name: "🍖 Costine", price: 9, max: 25 },
-  { name: "🍟 Patatine", price: 3, max: 40 },
-  { name: "🌭 Hot Dog", price: 4, max: 30 },
-  { name: "🥪 Panino", price: 4, max: 50 },
-  { name: "🥤 Bibita", price: 2, max: 60 },
-  { name: "🍰 Dolce", price: 3, max: 20 },
-  { name: "☕ Caffè", price: 1, max: 100 }
+const prodotti = [
+  { name: "🥟 Le scarpe dell'orco (Scarpinocc)", price: 10, max: 50 },
+  { name: "🥟 La sbobba del cavaliere (Casoncelli)", price: 10, max: 50 },
+  { name: "🍞 Il sacco del viandante (Pane e cotechino)", price: 10, max: 50 },
+  { name: "🍔 Il panino del re (Hamburger)", price: 10, max: 50 },
+  { name: "🥬 Il panino del re vegetariano (Hamburger vegetariano)", price: 10, max: 50 },
+  { name: "🧆 Pepite d'oriente (Falafel)", price: 10, max: 50 },
+  { name: "🍺 Elisir del monaco (Birra)", price: 10, max: 50 },
+  { name: "🍹 Pozione del doge (Spritz)", price: 10, max: 50 },
+  { name: "🥂 Il nettare della regina (Prosecco)", price: 10, max: 50 }
 ];
+
 
 
 // ================= DOM =================
