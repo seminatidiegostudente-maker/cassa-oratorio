@@ -62,7 +62,8 @@ updateClock();
 // ================= ACCESSO LIVE DATABASE =================
 db.ref("prodotti").on("value", (snapshot) => {
   if (!snapshot.exists()) {
-    db.ref("prodotti").set(prodottiInIniziali);
+    // CORRETTO: rimosso l'errore di battitura "prodottiInIniziali"
+    db.ref("prodotti").set(prodottiIniziali);
   } else {
     stato = snapshot.val();
     renderProdotti();
@@ -74,6 +75,8 @@ db.ref("prodotti").on("value", (snapshot) => {
 // ================= RENDERING PRODOTTI CASSA =================
 function renderProdotti() {
   itemsContainer.innerHTML = "";
+  if (!stato) return; // Protezione se lo stato è temporaneamente vuoto
+  
   stato.forEach((prod, index) => {
     const itemInCarrello = carrello.find(c => c.index === index);
     const qtaSelezionata = itemInCarrello ? itemInCarrello.qta : 0;
@@ -198,7 +201,7 @@ function svuotaTutto() {
   updateCarrelloEInterfaccia();
 }
 
-// ================= FUNZIONE CONFERMA E STAMPA (OTTIMIZZATO E STRIPPA STRASS) =================
+// ================= FUNZIONE CONFERMA E STAMPA =================
 confirmBtn.addEventListener("click", () => {
   const famiglia = document.getElementById("famigliaInput").value.trim();
   const tavolo = document.getElementById("tavoloInput").value.trim();
@@ -218,7 +221,6 @@ confirmBtn.addEventListener("click", () => {
   const dataStr = d.toLocaleDateString('it-IT');
   const oraStr = d.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' });
 
-  // Divisori accorciati a 20 caratteri e intestazioni condensate
   let ticketHTML = `
     <div class="ticket-header">
       <h2>CRE ORATORIO</h2>
@@ -233,10 +235,8 @@ confirmBtn.addEventListener("click", () => {
 
   carrello.forEach(item => {
     const subTot = (item.price * item.qta).toFixed(2);
-    // Rimozione emoji
     let nomePulito = item.name.replace(/[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2011-\u26FF]|\uD83E[\uDD10-\uDDFF]/g, '').trim();
     
-    // Taglio forzato a 10 caratteri per evitare sbalzi a capo
     if (nomePulito.length > 10) nomePulito = nomePulito.substring(0, 8) + "..";
 
     ticketHTML += `
@@ -295,6 +295,8 @@ closeAdminBtn.addEventListener("click", () => adminPanel.style.display = "none")
 
 function renderAdminPanel() {
   adminItemsList.innerHTML = "";
+  if (!stato) return;
+  
   stato.forEach((prod, index) => {
     const div = document.createElement("div");
     div.style = "display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; font-size: 14px; background: white; padding: 6px 10px; border-radius: 6px; box-shadow: 0 1px 2px rgba(0,0,0,0.05);";
