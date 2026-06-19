@@ -14,7 +14,6 @@ if (!firebase.apps.length) {
 }
 const db = firebase.database();
 
-
 const prodottiIniziali = [
   { name: "🥟 La sbobba del cavaliere (Casoncelli)", price: 6, max: 100 },
   { name: "🥟 Le scarpe dell'orco (Scarpinocc)", price: 6, max: 100 },
@@ -209,75 +208,11 @@ confirmBtn.addEventListener("click", () => {
   if (!metodoPagamento) { alert("Seleziona un metodo di pagamento!"); return; }
   if (!famiglia) { alert("Inserisci il nome della Famiglia/Persona!"); return; }
 
-  // Rimuove vecchi scontrini e stili temporanei di stampa precedenti
+  // Rimuove eventuali scontrini precedenti rimasti appesi al DOM
   const vecchioScontrino = document.getElementById("print-ticket");
   if (vecchioScontrino) vecchioScontrino.remove();
-  const vecchioStile = document.getElementById("pos58-style");
-  if (vecchioStile) vecchioStile.remove();
 
-  // 1. INIETTA LO STILE CSS SPECIFICO PER STAMPANTI DA 58mm
-  const styleEl = document.createElement("style");
-  styleEl.id = "pos58-style";
-  styleEl.innerHTML = `
-    @media print {
-      body * { visibility: hidden; }
-      #print-ticket, #print-ticket * { visibility: visible; }
-      #print-ticket {
-        position: absolute;
-        left: 0;
-        top: 0;
-        width: 58mm;
-        max-width: 58mm;
-        padding: 0 2mm;
-        box-sizing: border-box;
-        font-family: 'Courier New', Courier, monospace;
-        font-size: 11px;
-        line-height: 1.2;
-        color: #000;
-        background: #fff;
-      }
-      @page {
-        size: 58mm auto;
-        margin: 0;
-      }
-      .ticket-header { text-align: center; margin-bottom: 4px; }
-      .ticket-header h2 { font-size: 14px; margin: 0 0 2px 0; font-weight: bold; }
-      .ticket-header p { margin: 1px 0; font-size: 11px; }
-      .ticket-items { margin-top: 4px; }
-      .ticket-row {
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-start;
-        margin-bottom: 2px;
-      }
-      .ticket-row span:first-child {
-        text-align: left;
-        padding-right: 2px;
-        word-break: break-all;
-      }
-      .ticket-row span:last-child {
-        text-align: right;
-        white-space: nowrap;
-      }
-      .ticket-footer { text-align: center; margin-top: 4px; }
-      .ticket-total {
-        display: flex;
-        justify-content: space-between;
-        font-weight: bold;
-        font-size: 13px;
-        margin: 4px 0;
-        border-top: 1px dashed #000;
-        border-bottom: 1px dashed #000;
-        padding: 2px 0;
-      }
-      .ticket-footer p { margin: 1px 0; text-align: left; }
-      .ticket-footer .grazie { text-align: center; font-weight: bold; margin-top: 6px; }
-      .spazio-taglio { height: 35mm; display: block; content: " "; }
-    }
-  `;
-  document.head.appendChild(styleEl);
-
-  // 2. CREAZIONE STRUTTURA SCONTRINO
+  // 1. CREAZIONE STRUTTURA SCONTRINO SOLIDO
   const ticket = document.createElement("div");
   ticket.id = "print-ticket";
 
@@ -302,13 +237,13 @@ confirmBtn.addEventListener("click", () => {
     // Pulizia icone ed emoji
     let nomePulito = item.name.replace(/[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2011-\u26FF]|\uD83E[\uDD10-\uDDFF]/g, '').trim();
     
-    // Ottimizzato per 58mm: taglia a 14 caratteri se il nome è troppo lungo, per evitare sovrapposizioni
-    if (nomePulito.length > 14) nomePulito = nomePulito.substring(0, 12) + "..";
+    // Taglio forzato per incolonnamento perfetto su carta termica da 58mm (circa 32 caratteri Courier max)
+    if (nomePulito.length > 16) nomePulito = nomePulito.substring(0, 14) + "..";
 
     ticketHTML += `
       <div class="ticket-row">
-        <span>${item.qta}x ${nomePulito}</span>
-        <span>€${subTot}</span>
+        <span class="ticket-col-name">${item.qta}x ${nomePulito}</span>
+        <span class="ticket-col-price">€${subTot}</span>
       </div>
     `;
   });
@@ -333,7 +268,7 @@ confirmBtn.addEventListener("click", () => {
   ticket.innerHTML = ticketHTML;
   document.body.appendChild(ticket);
 
-  // 3. SINCRONIZZAZIONE E INVIO ALLA STAMPANTE
+  // 2. AGGIORNAMENTO DATABASE E TRIGGER DI STAMPA CON TIMEOUT DI SICUREZZA
   const aggiornamentiDb = {};
   carrello.forEach(item => {
     aggiornamentiDb[`prodotti/${item.index}/max`] = stato[item.index].max - item.qta;
@@ -341,8 +276,11 @@ confirmBtn.addEventListener("click", () => {
 
   db.ref().update(aggiornamentiDb)
     .then(() => {
-      window.print();
-      svuotaTutto();
+      // Lascia il tempo al thread del browser di renderizzare il biglietto prima di bloccare tutto con window.print()
+      setTimeout(() => {
+        window.print();
+        svuotaTutto();
+      }, 100);
     })
     .catch((error) => {
       alert("Errore di sincronizzazione con Firebase: " + error.message);
@@ -374,7 +312,7 @@ function renderAdminPanel() {
         <button style="width:24px; height:24px; font-weight:bold; cursor:pointer;" onclick="aggiornaScortaServer(${index}, -1)">-1</button>
         <span style="font-weight: bold; width: 40px; text-align:center; color: #4f46e5;">${prod.max}</span>
         <button style="width:24px; height:24px; font-weight:bold; cursor:pointer;" onclick="aggiornaScortaServer(${index}, 1)">+1</button>
-        <button style="width:24px; height:24px; font-weight:bold; cursor:pointer;" onclick="aggiarnaScortaServer(${index}, 5)">+5</button>
+        <button style="width:24px; height:24px; font-weight:bold; cursor:pointer;" onclick="aggiornaScortaServer(${index}, 5)">+5</button>
       </div>
     `;
     adminItemsList.appendChild(div);
