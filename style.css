@@ -308,7 +308,6 @@ input:focus { border-color: #4f46e5; }
   transition: all 0.2s ease;
 }
 
-/* Richiesta utente: colore verde acceso se selezionato */
 .pay-btn.activePay {
   background-color: #16a34a !important;
   color: white !important;
@@ -335,3 +334,98 @@ input:focus { border-color: #4f46e5; }
 .restoBox { display: flex; justify-content: space-between; align-items: center; padding-top: 10px; border-top: 1px dashed #cbd5e1; }
 .restoBox span { font-size: 15px; font-weight: 700; color: #334155; }
 .restoBox .resto-value { font-size: 24px; font-weight: 900; color: #dc2626; }
+
+/* ==========================================================================
+   STAMPA SPECIFICA PER STAMPANTE TERMICA POS-58 (58mm)
+   ========================================================================== */
+
+/* Di base, nascondiamo lo scontrino di stampa sullo schermo del computer */
+#print-ticket {
+  display: none;
+}
+
+@media print {
+  /* Nasconde tutta l'interfaccia della cassa */
+  html, body, .container, .left-panel, .right-panel, .bottom-bar, #adminPanel {
+    display: none !important;
+    height: auto !important;
+    overflow: visible !important;
+  }
+
+  /* Mostra solo l'elemento scontrino */
+  #print-ticket {
+    display: block !important;
+    width: 54mm; /* Ampiezza massima di stampa effettiva su rotolo da 58mm */
+    margin: 0;
+    padding: 0;
+    font-family: "Courier New", Courier, monospace; /* Font a larghezza fissa da scontrino */
+    font-size: 12px;
+    line-height: 1.4;
+    color: #000;
+    background: #fff;
+  }
+
+  /* Impostazioni della pagina (Rimuove intestazioni del browser tipo data e URL della pagina) */
+  @page {
+    size: 58mm auto;
+    margin: 0mm;
+  }
+
+  .ticket-header {
+    text-align: center;
+    margin-bottom: 4px;
+  }
+
+  .ticket-header h2 {
+    font-size: 13px;
+    font-weight: bold;
+    margin-bottom: 2px;
+  }
+
+  .ticket-header p {
+    font-size: 11px;
+    margin: 1px 0;
+    text-align: left;
+  }
+
+  .ticket-items {
+    margin-top: 4px;
+  }
+
+  .ticket-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    margin-bottom: 2px;
+  }
+
+  .ticket-footer {
+    margin-top: 4px;
+    font-size: 11px;
+  }
+
+  .ticket-total {
+    display: flex;
+    justify-content: space-between;
+    font-size: 14px;
+    font-weight: bold;
+    margin: 4px 0;
+    border-top: 1px dashed #000;
+    border-bottom: 1px dashed #000;
+    padding: 3px 0;
+  }
+
+  .grazie {
+    text-align: center;
+    font-style: italic;
+    margin-top: 8px;
+  }
+
+  /* Spazio di cortesia in fondo per evitare che la taglierina tagli l'ultima riga di testo */
+  .spazio-taglio {
+    color: white;
+    height: 30px;
+    margin-top: 10px;
+    display: block;
+  }
+}

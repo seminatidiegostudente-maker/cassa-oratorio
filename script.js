@@ -9,13 +9,11 @@ const firebaseConfig = {
   appId: "1:463871619471:web:009b3411405f72ee3ddbfa"
 };
 
-// Inizializzazione controllata dell'istanza
 if (!firebase.apps.length) {
   firebase.initializeApp(firebaseConfig);
 }
 const db = firebase.database();
 
-// ================= MENU PRODOTTI PREDEFINITI =================
 const prodottiIniziali = [
   { name: "🥟 La sbobba del cavaliere (Casoncelli)", price: 6, max: 100 },
   { name: "🥟 Le scarpe dell'orco (Scarpinocc)", price: 6, max: 100 },
@@ -28,7 +26,7 @@ const prodottiIniziali = [
   { name: "🍟 Patatine Fritte", price: 3, max: 5000 },
 ];
 
-// ================= ACQUISIZIONE ELEMENTI DOM =================
+// Elements
 const itemsContainer = document.getElementById("items");
 const summary = document.getElementById("summary");
 const totalEl = document.getElementById("total");
@@ -42,319 +40,281 @@ const restoEl = document.getElementById("resto");
 const confirmBtn = document.getElementById("confirm");
 const resetBtn = document.getElementById("reset");
 
-let stato = [];      // Stato live caricato in tempo reale dal server Firebase
-let carrello = [];   // Quantità selezionate *localmente* dalla cassa corrente
-let metodoPagamento = "";
-
-// ================= AGGANCIO ASCOLTATORE LIVE FIREBASE =================
-db.ref("prodotti").on("value", function(snap) {
-  const data = snap.val();
-  
-  if (!data) {
-    // Configurazione iniziale automatica al primo avvio assoluto
-    const initConfig = prodottiIniziali.map(function(p) {
-      return { name: p.name, price: p.price, stock: p.max };
-    });
-    db.ref("prodotti").set(initConfig);
-    return;
-  }
-  
-  stato = data;
-  
-  // Inizializza il vettore del carrello locale se vuoto
-  if (carrello.length === 0) {
-    carrello = new Array(stato.length).fill(0);
-  }
-  
-  render();
-  // Se il pannello amministratore è aperto, lo tiene aggiornato live con le scorte che cambiano
-  if (document.getElementById("adminPanel").style.display === "block") {
-    renderAdminPanel();
-  }
-});
-
-// ================= LOGICA DI RENDERING DELLA SCHERMATA =================
-function render() {
-  if (!itemsContainer) return;
-  itemsContainer.innerHTML = "";
-  summary.innerHTML = "";
-
-  let totalePiatti = 0;
-  let totaleEuro = 0;
-
-  stato.forEach(function(p, i) {
-    const qty = carrello[i] || 0;
-    // Calcoliamo la disponibilità reale sottraendo quello bloccato nel carrello locale della cassa
-    const dispDisponibile = p.stock - qty;
-    
-    totalePiatti += qty;
-    totaleEuro += qty * p.price;
-
-    const div = document.createElement("div");
-    div.className = "item";
-    if (dispDisponibile <= 0) div.classList.add("fine");
-
-    div.innerHTML = `
-      <div class="item-info">
-        <div class="name">${p.name}</div>
-        <div class="item-meta">
-          <span class="price">€${p.price.toFixed(2)}</span>
-          <span class="max">Disp: ${dispDisponibile}</span>
-        </div>
-      </div>
-      <div class="controls">
-        <button class="minus" ${qty === 0 ? 'disabled' : ''}>-</button>
-        <div class="count">${qty}</div>
-        <button class="plus" ${dispDisponibile <= 0 ? 'disabled' : ''}>+</button>
-      </div>
-    `;
-
-    // I click modificano SOLO la memoria locale della cassa. Nessun lag o desincronizzazione!
-    div.querySelector(".plus").onclick = function() {
-      if (dispDisponibile <= 0) return;
-      carrello[i] = (carrello[i] || 0) + 1;
-      render();
-    };
-
-    div.querySelector(".minus").onclick = function() {
-      if (!carrello[i] || carrello[i] <= 0) return;
-      carrello[i]--;
-      render();
-    };
-
-    itemsContainer.appendChild(div);
-
-    if (qty > 0) {
-      const r = document.createElement("div");
-      r.className = "summary-row";
-      r.innerHTML = `<span>${p.name} <strong>x${qty}</strong></span> <span>€${(qty * p.price).toFixed(2)}</span>`;
-      summary.appendChild(r);
-    }
-  });
-
-  if (totalEl) totalEl.textContent = totalePiatti;
-  if (totalPriceEl) totalPriceEl.textContent = totaleEuro.toFixed(2);
-  if (grandTotalEl) grandTotalEl.textContent = "€" + totaleEuro.toFixed(2);
-  
-  aggiornaResto();
-}
-
-// ================= GESTIONE PULSANTI DI PAGAMENTO =================
-if (cashBtn && posBtn) {
-  cashBtn.onclick = function() {
-    metodoPagamento = "Contanti";
-    cashBtn.classList.add("activePay");
-    posBtn.classList.remove("activePay");
-    if (cashArea) cashArea.style.display = "block";
-  };
-  
-  posBtn.onclick = function() {
-    metodoPagamento = "POS";
-    posBtn.classList.add("activePay");
-    cashBtn.classList.remove("activePay");
-    if (cashArea) cashArea.style.display = "none";
-    if (cashGiven) cashGiven.value = "";
-    aggiornaResto();
-  };
-}
-
-// ================= CALCOLATORE RAPIDO DEL RESTO CONTANTI =================
-function aggiornaResto() {
-  if (!cashGiven || !restoEl || !totalPriceEl) return;
-  const dato = parseFloat(cashGiven.value) || 0;
-  const totale = parseFloat(totalPriceEl.textContent) || 0;
-  const resto = dato - totale;
-  restoEl.textContent = resto >= 0 ? resto.toFixed(2) : "0.00";
-}
-
-if (cashGiven) {
-  cashGiven.addEventListener("input", aggiornaResto);
-}
-
-// Intercettazione pulsanti rapidi (5€, 10€, 20€, 50€)
-document.querySelectorAll(".btn-quick").forEach(function(btn) {
-  btn.onclick = function() {
-    const amount = parseFloat(btn.getAttribute("data-amount"));
-    cashGiven.value = amount.toFixed(2);
-    aggiornaResto();
-  };
-});
-
-// ================= AZZERAMENTO LOCALE ORDINE =================
-if (resetBtn) {
-  resetBtn.onclick = function() {
-    if (carrello.every(q => q === 0)) return;
-    if (confirm("Vuoi azzerare l'ordine corrente in questa cassa?")) {
-      carrello = new Array(stato.length).fill(0);
-      render();
-    }
-  };
-}
-
-// ================= CONFERMA ATOMICA E STAMPA SCONTRINO =================
-if (confirmBtn) {
-  confirmBtn.onclick = function() {
-    let haProdotti = false;
-    let updates = {};
-    let testoRicevuta = "       🧾 RICEVUTA CRE ORATORIO\n\n";
-
-    for (let i = 0; i < stato.length; i++) {
-      const qty = carrello[i] || 0;
-      if (qty > 0) {
-        haProdotti = true;
-        const stockServerAttuale = stato[i].stock;
-        const stockAggiornato = stockServerAttuale - qty;
-
-        // Blocco di sicurezza invalicabile se il magazzino si esaurisce nel frattempo da un'altra cassa
-        if (stockAggiornato < 0) {
-          alert(`🚨 Errore di sincronizzazione! Il piatto "${stato[i].name}" è terminato su Firebase un istante fa. L'ordine è stato interrotto per non generare errori in cucina.`);
-          return;
-        }
-
-        updates[`prodotti/${i}/stock`] = stockAggiornato;
-        testoRicevuta += `${stato[i].name}\n  x${qty} = €${(qty * stato[i].price).toFixed(2)}\n`;
-      }
-    }
-
-    if (!haProdotti) {
-      alert("Il carrello è vuoto! Seleziona almeno un piatto.");
-      return;
-    }
-
-    if (!metodoPagamento) {
-      alert("Seleziona prima il metodo di pagamento (Contanti o POS)!");
-      return;
-    }
-
-    const fam = document.getElementById("famigliaInput")?.value || "Generico";
-    const tav = document.getElementById("tavoloInput")?.value || "N/D";
-    const pers = document.getElementById("personeInput")?.value || "N/D";
-    const dataText = document.getElementById("dataLive")?.textContent || "";
-    const oraText = document.getElementById("orarioLive")?.textContent || "";
-
-    testoRicevuta += "\n----------------------------------------\n";
-    testoRicevuta += `Cliente/Famiglia: ${fam}\n`;
-    testoRicevuta += `Tavolo: ${tav}       | Persone: ${pers}\n`;
-    testoRicevuta += `Pagamento: ${metodoPagamento}\n`;
-    testoRicevuta += `Data: ${dataText} ore ${oraText}\n`;
-
-    if (metodoPagamento === "Contanti" && cashGiven) {
-      const dato = parseFloat(cashGiven.value) || 0;
-      const totale = parseFloat(totalPriceEl.textContent) || 0;
-      const resto = dato - totale;
-      testoRicevuta += `Ricevuto: €${dato.toFixed(2)}\n`;
-      testoRicevuta += `Resto: €${resto >= 0 ? resto.toFixed(2) : "0.00"}\n`;
-    }
-
-    testoRicevuta += "\n----------------------------------------\n";
-    testoRicevuta += `TOTALE PEZZI: ${totalEl.textContent}\n`;
-    testoRicevuta += `TOTALE PAGATO: €${totalPriceEl.textContent}\n\n`;
-    testoRicevuta += "      Grazie per il vostro supporto! ❤️\n";
-
-    // Spedizione pacchetto unico a Firebase. Se va a buon fine, apre la stampa
-    db.ref().update(updates, function(error) {
-      if (error) {
-        alert("Errore di rete! Firebase non ha risposto. Riprova.");
-      } else {
-        const win = window.open("", "", "width=450,height=650");
-        if (win) {
-          win.document.write(`<pre style="font-size:16px; font-family:'Courier New', monospace; padding:20px; line-height:1.4;">${testoRicevuta}</pre>`);
-          win.print();
-          win.close();
-        }
-
-        // Reset completo dei campi per la fila successiva
-        carrello = new Array(stato.length).fill(0);
-        if (document.getElementById("famigliaInput")) document.getElementById("famigliaInput").value = "";
-        if (document.getElementById("tavoloInput")) document.getElementById("tavoloInput").value = "";
-        if (document.getElementById("personeInput")) document.getElementById("personeInput").value = "";
-        if (cashGiven) cashGiven.value = "";
-        if (restoEl) restoEl.textContent = "0.00";
-        metodoPagamento = "";
-        if (cashArea) cashArea.style.display = "none";
-        if (cashBtn) cashBtn.classList.remove("activePay");
-        if (posBtn) posBtn.classList.remove("activePay");
-      }
-    });
-  };
-}
-
-// ================= SCHERMATA DI GESTIONE SEGRETA (LIVE ADMIN) =================
+// Admin Panel Elements
 const adminBtn = document.getElementById("adminBtn");
 const adminPanel = document.getElementById("adminPanel");
 const adminItemsList = document.getElementById("adminItemsList");
 const closeAdminBtn = document.getElementById("closeAdminBtn");
 
-if (adminBtn) {
-  adminBtn.onclick = function() {
-    const password = prompt("Inserisci la password di sblocco magazzino:");
-    if (password !== "oratorio2026") {
-      alert("Password errata!");
-      return;
-    }
-    adminPanel.style.display = "block";
-    renderAdminPanel();
-  };
+let stato = [];
+let carrello = [];
+let metodoPagamento = "";
+
+// ================= CLOCK LIVE =================
+function updateClock() {
+  const d = new Date();
+  document.getElementById("dataLive").innerText = d.toLocaleDateString('it-IT');
+  document.getElementById("orarioLive").innerText = d.toLocaleTimeString('it-IT');
 }
+setInterval(updateClock, 1000);
+updateClock();
 
-if (closeAdminBtn) {
-  closeAdminBtn.onclick = function() {
-    adminPanel.style.display = "none";
-  };
-}
+// ================= ACCESSO LIVE DATABASE =================
+db.ref("prodotti").on("value", (snapshot) => {
+  if (!snapshot.exists()) {
+    db.ref("prodotti").set(prodottiIniziali);
+  } else {
+    stato = snapshot.val();
+    renderProdotti();
+    updateCarrelloEInterfaccia();
+    if(adminPanel.style.display === "block") renderAdminPanel();
+  }
+});
 
-function renderAdminPanel() {
-  if (!adminItemsList) return;
-  adminItemsList.innerHTML = "";
+// ================= RENDERING PRODOTTI CASSA =================
+function renderProdotti() {
+  itemsContainer.innerHTML = "";
+  stato.forEach((prod, index) => {
+    const itemInCarrello = carrello.find(c => c.index === index);
+    const qtaSelezionata = itemInCarrello ? itemInCarrello.qta : 0;
+    const rimasti = prod.max - qtaSelezionata;
 
-  stato.forEach(function(p, i) {
     const div = document.createElement("div");
-    div.style.display = "flex";
-    div.style.justifyContent = "space-between";
-    div.style.alignItems = "center";
-    div.style.padding = "8px 0";
-    div.style.borderBottom = "1px solid #cbd5e1";
+    div.className = `item ${rimasti <= 0 ? 'fine' : ''}`;
 
     div.innerHTML = `
-      <span style="font-weight: bold; font-size: 13px; color: #334155; width: 45%; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${p.name}</span>
-      <div style="display: flex; gap: 4px; align-items: center; width: 55%; justify-content: flex-end;">
-        <span style="font-size: 11px; color: #64748b;">€</span>
-        <input type="number" class="admin-price" value="${p.price}" style="width: 50px; height: 28px; font-size: 13px; padding: 2px;" data-index="${i}">
-        <span style="font-size: 11px; color: #64748b; margin-left: 4px;">Pz:</span>
-        <input type="number" class="admin-stock" value="${p.stock}" style="width: 55px; height: 28px; font-size: 13px; padding: 2px;" data-index="${i}">
-        <button class="btn-save-single" style="background: #16a34a; color: white; height: 28px; width: 45px; font-size: 11px; border:none; border-radius:4px; font-weight:bold; cursor:pointer;" data-index="${i}">Salva</button>
+      <div class="item-info">
+        <span class="name">${prod.name}</span>
+        <div class="item-meta">
+          <span class="price">€${prod.price.toFixed(2)}</span>
+          <span class="max">${rimasti <= 0 ? 'ESAURITO' : 'Disp: ' + rimasti}</span>
+        </div>
+      </div>
+      <div class="controls">
+        <button class="minus" ${qtaSelezionata === 0 ? 'disabled' : ''} onclick="cambiaQta(${index}, -1)">-</button>
+        <span class="count">${qtaSelezionata}</span>
+        <button class="plus" ${rimasti <= 0 ? 'disabled' : ''} onclick="cambiaQta(${index}, 1)">+</button>
       </div>
     `;
+    itemsContainer.appendChild(div);
+  });
+}
 
-    div.querySelector(".btn-save-single").onclick = function() {
-      const idx = this.getAttribute("data-index");
-      const nuovoPrezzo = parseFloat(div.querySelector(".admin-price").value) || 0;
-      const nuovaScorta = parseInt(div.querySelector(".admin-stock").value) || 0;
+// ================= LOGICA CARRELLO LOCALE =================
+window.cambiaQta = function(index, delta) {
+  const prodServer = stato[index];
+  const itemInCarrello = carrello.find(c => c.index === index);
+  const qtaAttuale = itemInCarrello ? itemInCarrello.qta : 0;
+  const nuovaQta = qtaAttuale + delta;
 
-      const updates = {};
-      updates[`prodotti/${idx}/price`] = nuovoPrezzo;
-      updates[`prodotti/${idx}/stock`] = nuovaScorta;
+  if (nuovaQta > prodServer.max || nuovaQta < 0) return;
 
-      db.ref().update(updates, function(error) {
-        if (error) {
-          alert("Errore nell'aggiornamento.");
-        } else {
-          alert("Aggiornato ovunque! ✅");
-        }
-      });
-    };
+  if (nuovaQta === 0) {
+    carrello = carrello.filter(c => c.index !== index);
+  } else {
+    if (itemInCarrello) {
+      itemInCarrello.qta = nuovaQta;
+    } else {
+      carrello.push({ index, name: prodServer.name, price: prodServer.price, qta: nuovaQta });
+    }
+  }
+  renderProdotti();
+  updateCarrelloEInterfaccia();
+};
 
+function updateCarrelloEInterfaccia() {
+  summary.innerHTML = "";
+  let totPezzi = 0;
+  let totPrezzo = 0;
+
+  carrello.forEach(item => {
+    totPezzi += item.qta;
+    const subTot = item.price * item.qta;
+    totPrezzo += subTot;
+
+    const row = document.createElement("div");
+    row.className = "summary-row";
+    row.innerHTML = `<span>${item.qta}x ${item.name}</span> <span>€${subTot.toFixed(2)}</span>`;
+    summary.appendChild(row);
+  });
+
+  totalEl.innerText = totPezzi;
+  totalPriceEl.innerText = totPrezzo.toFixed(2);
+  grandTotalEl.innerText = `€${totPrezzo.toFixed(2)}`;
+  calcolaResto();
+}
+
+// ================= GESTIONE PAGAMENTI =================
+cashBtn.addEventListener("click", () => impostaMetodo("contanti"));
+posBtn.addEventListener("click", () => impostaMetodo("pos"));
+
+function impostaMetodo(tipo) {
+  metodoPagamento = tipo;
+  if (tipo === "contanti") {
+    cashBtn.classList.add("activePay");
+    posBtn.classList.remove("activePay");
+    cashArea.style.display = "block";
+  } else {
+    posBtn.classList.add("activePay");
+    cashBtn.classList.remove("activePay");
+    cashArea.style.display = "none";
+    cashGiven.value = "";
+    restoEl.innerText = "0.00";
+  }
+}
+
+cashGiven.addEventListener("input", calcolaResto);
+document.querySelectorAll(".btn-quick").forEach(btn => {
+  btn.addEventListener("click", () => {
+    cashGiven.value = btn.getAttribute("data-amount");
+    calcolaResto();
+  });
+});
+
+function calcolaResto() {
+  const tot = parseFloat(totalPriceEl.innerText) || 0;
+  const dato = parseFloat(cashGiven.value) || 0;
+  if (dato >= tot && tot > 0) {
+    restoEl.innerText = (dato - tot).toFixed(2);
+  } else {
+    restoEl.innerText = "0.00";
+  }
+}
+
+resetBtn.addEventListener("click", svuotaTutto);
+function svuotaTutto() {
+  carrello = [];
+  metodoPagamento = "";
+  cashBtn.classList.remove("activePay");
+  posBtn.classList.remove("activePay");
+  cashArea.style.display = "none";
+  cashGiven.value = "";
+  restoEl.innerText = "0.00";
+  document.getElementById("famigliaInput").value = "";
+  document.getElementById("tavoloInput").value = "";
+  document.getElementById("personeInput").value = "";
+  renderProdotti();
+  updateCarrelloEInterfaccia();
+}
+
+// ================= FUNZIONE CONFERMA E STAMPA (OTTIMIZZATA POS-58) =================
+confirmBtn.addEventListener("click", () => {
+  const famiglia = document.getElementById("famigliaInput").value.trim();
+  const tavolo = document.getElementById("tavoloInput").value.trim();
+  const persone = document.getElementById("personeInput").value.trim();
+
+  if (carrello.length === 0) { alert("Il carrello è vuoto!"); return; }
+  if (!metodoPagamento) { alert("Seleziona un metodo di pagamento!"); return; }
+  if (!famiglia) { alert("Inserisci il nome della Famiglia/Persona!"); return; }
+
+  // 1. Rimuove eventuali scontrini stampati precedentemente
+  const vecchioScontrino = document.getElementById("print-ticket");
+  if (vecchioScontrino) vecchioScontrino.remove();
+
+  // 2. Crea il contenitore temporaneo per lo scontrino
+  const ticket = document.createElement("div");
+  ticket.id = "print-ticket";
+
+  const d = new Date();
+  const dataStr = d.toLocaleDateString('it-IT');
+  const oraStr = d.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' });
+
+  let ticketHTML = `
+    <div class="ticket-header">
+      <h2>CASSA CRE ORATORIO</h2>
+      <p>--------------------------------</p>
+      <p><b>Data:</b> ${dataStr} - <b>Ora:</b> ${oraStr}</p>
+      <p><b>Fam:</b> ${famiglia.toUpperCase()}</p>
+      <p><b>Tavolo:</b> ${tavolo || '-'}  |  <b>Persone:</b> ${persone || '-'}</p>
+      <p>--------------------------------</p>
+    </div>
+    <div class="ticket-items">
+  `;
+
+  // Ciclo dei prodotti nel carrello pulito dalle emoji per sicurezza di stampa
+  carrello.forEach(item => {
+    const subTot = (item.price * item.qta).toFixed(2);
+    // Pulizia emoji e troncamento a 16 caratteri per non rompere l'incolonnamento sui 58mm
+    let nomePulito = item.name.replace(/[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2011-\u26FF]|\uD83E[\uDD10-\uDDFF]/g, '').trim();
+    if (nomePulito.length > 16) nomePulito = nomePulito.substring(0, 14) + "..";
+
+    ticketHTML += `
+      <div class="ticket-row">
+        <span>${item.qta}x ${nomePulito}</span>
+        <span>€${subTot}</span>
+      </div>
+    `;
+  });
+
+  const totaleFinale = totalPriceEl.innerText;
+
+  ticketHTML += `
+    </div>
+    <div class="ticket-footer">
+      <div class="ticket-total">
+        <span>TOTALE:</span>
+        <span>€${totaleFinale}</span>
+      </div>
+      <p><b>Pagamento:</b> ${metodoPagamento.toUpperCase()}</p>
+      ${metodoPagamento === "contanti" && parseFloat(cashGiven.value) > 0 ? `<p><b>Ricevuto:</b> €${parseFloat(cashGiven.value).toFixed(2)}</p><p><b>Resto:</b> €${restoEl.innerText}</p>` : ''}
+      <p>--------------------------------</p>
+      <p class="grazie">Buon appetito!</p>
+      <p class="spazio-taglio">.</p>
+    </div>
+  `;
+
+  ticket.innerHTML = ticketHTML;
+  document.body.appendChild(ticket);
+
+  // 3. Esegue la transazione scalando dal database Firebase (Coordinamento Live Casse)
+  const aggiornamentiDb = {};
+  carrello.forEach(item => {
+    aggiornamentiDb[`prodotti/${item.index}/max`] = stato[item.index].max - item.qta;
+  });
+
+  db.ref().update(aggiornamentiDb)
+    .then(() => {
+      // 4. Lancia la stampa di sistema del browser
+      window.print();
+      svuotaTutto();
+    })
+    .catch((error) => {
+      alert("Errore di sincronizzazione con Firebase: " + error.message);
+    });
+});
+
+// ================= GESTIONE PANNELLO MAGAZZINO/ADMIN =================
+adminBtn.addEventListener("click", () => {
+  if(adminPanel.style.display === "none") {
+    adminPanel.style.display = "block";
+    renderAdminPanel();
+  } else {
+    adminPanel.style.display = "none";
+  }
+});
+closeAdminBtn.addEventListener("click", () => adminPanel.style.display = "none");
+
+function renderAdminPanel() {
+  adminItemsList.innerHTML = "";
+  stato.forEach((prod, index) => {
+    const div = document.createElement("div");
+    div.style = "display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; font-size: 14px; background: white; padding: 6px 10px; border-radius: 6px; box-shadow: 0 1px 2px rgba(0,0,0,0.05);";
+    div.innerHTML = `
+      <span style="font-weight: 600; max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${prod.name}</span>
+      <div style="display:flex; align-items:center; gap: 5px;">
+        <button style="width:24px; height:24px; font-weight:bold; cursor:pointer;" onclick="aggiornaScortaServer(${index}, -5)">-5</button>
+        <button style="width:24px; height:24px; font-weight:bold; cursor:pointer;" onclick="aggiornaScortaServer(${index}, -1)">-1</button>
+        <span style="font-weight: bold; width: 40px; text-align:center; color: #4f46e5;">${prod.max}</span>
+        <button style="width:24px; height:24px; font-weight:bold; cursor:pointer;" onclick="aggiornaScortaServer(${index}, 1)">+1</button>
+        <button style="width:24px; height:24px; font-weight:bold; cursor:pointer;" onclick="aggiornaScortaServer(${index}, 5)">+5</button>
+      </div>
+    `;
     adminItemsList.appendChild(div);
   });
 }
 
-// ================= AGGIORNAMENTO ORA E DATA =================
-function aggiornaDataOra() {
-  const now = new Date();
-  const dEl = document.getElementById("dataLive");
-  const oEl = document.getElementById("orarioLive");
-  if (dEl) dEl.textContent = now.toLocaleDateString("it-IT");
-  if (oEl) oEl.textContent = now.toLocaleTimeString("it-IT");
-}
-setInterval(aggiornaDataOra, 1000);
-aggiornaDataOra();
+window.aggiornaScortaServer = function(index, delta) {
+  let nuovaScorta = stato[index].max + delta;
+  if(nuovaScorta < 0) nuovaScorta = 0;
+  db.ref(`prodotti/${index}/max`).set(nuovaScorta);
+};
