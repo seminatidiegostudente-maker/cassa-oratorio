@@ -17,7 +17,6 @@ const db = firebase.database();
 const prodottiIniziali = [
   { name: "🥟 La sbobba del cavaliere (Casoncelli)", price: 6, max: 100 },
   { name: "🥟 Le scarpe dell'orco (Scarpinocc)", price: 6, max: 100 },
-  { name: "🥣 Cous Cous", price: 6, max: 20 },
   { name: "🍞 Il sacco del viandante (Pane e cotechino)", price: 4, max: 100 },
   { name: "🍔 Il panino del re (Hamburger+Patatine)", price: 8, max: 120 },
   { name: "🥬 Il panino del re veg (Hamburger Veg+Patatine)", price: 8, max: 20 },
