@@ -344,92 +344,88 @@ input:focus { border-color: #4f46e5; }
 }
 
 @media print {
-  /* Nasconde completamente l'interfaccia a schermo */
+  /* Impostazioni hardware del rotolo: forza margini reali a 0 */
+  @page {
+    size: 58mm auto;
+    margin: 0mm !important;
+  }
+
+  /* Nasconde completamente l'interfaccia dell'applicazione web */
   html, body, .container, .left-panel, .right-panel, .bottom-bar, #adminPanel {
     display: none !important;
     height: auto !important;
     overflow: visible !important;
   }
 
-  /* Forza il posizionamento dello scontrino tutto a sinistra */
+  /* Incolla il blocco scontrino sul limite sinistro assoluto della carta */
   #print-ticket {
     display: block !important;
-    width: 48mm; /* Ridotto da 54 a 48mm per rientrare nei margini fisici sinistri */
-    margin-left: 0mm !important;
-    margin-right: auto !important;
-    margin-top: 0mm;
-    margin-bottom: 0mm;
-    padding: 0;
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 45mm !important; /* Calibrato perfettamente sull'area termica di un rotolo da 58mm */
+    margin: 0 !important;
+    padding: 0 1mm 0 1mm !important; /* Margine interno minimo di sicurezza anticutting */
     font-family: "Courier New", Courier, monospace;
-    font-size: 11px; /* Font leggermente ridotto per sicurezza */
-    line-height: 1.3;
+    font-size: 11px;
+    line-height: 1.2;
     color: #000;
     background: #fff;
-    float: left; /* Spinge tutto a sinistra */
+    text-align: left !important;
   }
 
-  /* Impostazioni pagina di stampa senza margini browser */
-  @page {
-    size: 58mm auto;
-    margin-left: 0mm;
-    margin-right: 0mm;
-    margin-top: 0mm;
-    margin-bottom: 0mm;
-  }
-
-  .ticket-header {
-    text-align: left; /* Allineato a sinistra invece che centrato per sicurezza visiva */
-    margin-bottom: 4px;
+  /* Forza l'allineamento a sinistra di tutte le sezioni */
+  .ticket-header, .ticket-items, .ticket-footer {
+    text-align: left !important;
+    width: 100% !important;
   }
 
   .ticket-header h2 {
     font-size: 12px;
     font-weight: bold;
-    margin-bottom: 2px;
-    text-align: center; /* Titolo centrato nel suo piccolo spazio */
+    margin-bottom: 4px;
+    text-align: left !important;
   }
 
-  .ticket-header p {
+  .ticket-header p, .ticket-footer p {
     font-size: 11px;
-    margin: 1px 0;
+    margin: 2px 0;
+    text-align: left !important;
   }
 
-  .ticket-items {
-    margin-top: 4px;
-  }
-
+  /* Flexbox per incolonnare quantità+nome a sinistra e prezzo a destra */
   .ticket-row {
-    display: flex;
-    justify-content: space-between; /* Forza Nome a sinistra e Prezzo a destra */
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    width: 100% !important;
     font-size: 11px;
     margin-bottom: 2px;
-  }
-
-  .ticket-footer {
-    margin-top: 4px;
-    font-size: 11px;
+    white-space: nowrap !important; /* Blocca il wrapping del testo a capo automatico */
   }
 
   .ticket-total {
-    display: flex;
-    justify-content: space-between;
+    display: flex !important;
+    justify-content: space-between !important;
     font-size: 13px;
     font-weight: bold;
     margin: 4px 0;
     border-top: 1px dashed #000;
     border-bottom: 1px dashed #000;
     padding: 3px 0;
+    width: 100% !important;
   }
 
   .grazie {
-    text-align: center;
+    text-align: left !important;
     font-style: italic;
-    margin-top: 8px;
+    margin-top: 6px;
   }
 
+  /* Spazio bianco aggiuntivo per consentire il taglio manuale o automatico senza mutilare il testo */
   .spazio-taglio {
     color: white;
-    height: 30px;
+    height: 40px;
     margin-top: 10px;
     display: block;
   }

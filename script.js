@@ -62,7 +62,7 @@ updateClock();
 // ================= ACCESSO LIVE DATABASE =================
 db.ref("prodotti").on("value", (snapshot) => {
   if (!snapshot.exists()) {
-    db.ref("prodotti").set(prodottiIniziali);
+    db.ref("prodotti").set(prodottiInIniziali);
   } else {
     stato = snapshot.val();
     renderProdotti();
@@ -171,6 +171,7 @@ document.querySelectorAll(".btn-quick").forEach(btn => {
   });
 });
 
+// Calcola il resto monetario dell'operazione di cassa
 function calcolaResto() {
   const tot = parseFloat(totalPriceEl.innerText) || 0;
   const dato = parseFloat(cashGiven.value) || 0;
@@ -197,7 +198,7 @@ function svuotaTutto() {
   updateCarrelloEInterfaccia();
 }
 
-// ================= FUNZIONE CONFERMA E STAMPA (SPOSTATO TUTTO A SINISTRA) =================
+// ================= FUNZIONE CONFERMA E STAMPA (OTTIMIZZATO E STRIPPA STRASS) =================
 confirmBtn.addEventListener("click", () => {
   const famiglia = document.getElementById("famigliaInput").value.trim();
   const tavolo = document.getElementById("tavoloInput").value.trim();
@@ -217,24 +218,26 @@ confirmBtn.addEventListener("click", () => {
   const dataStr = d.toLocaleDateString('it-IT');
   const oraStr = d.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' });
 
-  // Divisori accorciati a 26 caratteri per stare perfettamente a sinistra su rotoli stretti
+  // Divisori accorciati a 20 caratteri e intestazioni condensate
   let ticketHTML = `
     <div class="ticket-header">
-      <h2>CASSA CRE ORATORIO</h2>
-      <p>--------------------------</p>
-      <p><b>Data:</b> ${dataStr} - <b>Ora:</b> ${oraStr}</p>
-      <p><b>Fam:</b> ${famiglia.toUpperCase()}</p>
-      <p><b>Tav:</b> ${tavolo || '-'} | <b>Pers:</b> ${persone || '-'}</p>
-      <p>--------------------------</p>
+      <h2>CRE ORATORIO</h2>
+      <p>--------------------</p>
+      <p><b>D:</b> ${dataStr} - <b>Ora:</b> ${oraStr}</p>
+      <p><b>F:</b> ${famiglia.toUpperCase()}</p>
+      <p><b>Tav:</b> ${tavolo || '-'} | <b>P:</b> ${persone || '-'}</p>
+      <p>--------------------</p>
     </div>
     <div class="ticket-items">
   `;
 
   carrello.forEach(item => {
     const subTot = (item.price * item.qta).toFixed(2);
-    // Tolgo emoji e accorcio a soli 13 caratteri per evitare sbalzi a destra
+    // Rimozione emoji
     let nomePulito = item.name.replace(/[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2011-\u26FF]|\uD83E[\uDD10-\uDDFF]/g, '').trim();
-    if (nomePulito.length > 13) nomePulito = nomePulito.substring(0, 11) + "..";
+    
+    // Taglio forzato a 10 caratteri per evitare sbalzi a capo
+    if (nomePulito.length > 10) nomePulito = nomePulito.substring(0, 8) + "..";
 
     ticketHTML += `
       <div class="ticket-row">
@@ -250,12 +253,12 @@ confirmBtn.addEventListener("click", () => {
     </div>
     <div class="ticket-footer">
       <div class="ticket-total">
-        <span>TOTALE:</span>
+        <span>TOT:</span>
         <span>€${totaleFinale}</span>
       </div>
       <p><b>Pag:</b> ${metodoPagamento.toUpperCase()}</p>
-      ${metodoPagamento === "contanti" && parseFloat(cashGiven.value) > 0 ? `<p><b>Ricevuto:</b> €${parseFloat(cashGiven.value).toFixed(2)}</p><p><b>Resto:</b> €${restoEl.innerText}</p>` : ''}
-      <p>--------------------------</p>
+      ${metodoPagamento === "contanti" && parseFloat(cashGiven.value) > 0 ? `<p><b>Ric:</b> €${parseFloat(cashGiven.value).toFixed(2)}</p><p><b>Resto:</b> €${restoEl.innerText}</p>` : ''}
+      <p>--------------------</p>
       <p class="grazie">Buon appetito!</p>
       <p class="spazio-taglio">.</p>
     </div>
