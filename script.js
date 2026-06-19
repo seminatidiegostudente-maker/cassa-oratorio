@@ -62,7 +62,6 @@ updateClock();
 // ================= ACCESSO LIVE DATABASE =================
 db.ref("prodotti").on("value", (snapshot) => {
   if (!snapshot.exists()) {
-    // CORRETTO: rimosso l'errore di battitura "prodottiInIniziali"
     db.ref("prodotti").set(prodottiIniziali);
   } else {
     stato = snapshot.val();
@@ -75,7 +74,7 @@ db.ref("prodotti").on("value", (snapshot) => {
 // ================= RENDERING PRODOTTI CASSA =================
 function renderProdotti() {
   itemsContainer.innerHTML = "";
-  if (!stato) return; // Protezione se lo stato è temporaneamente vuoto
+  if (!stato) return;
   
   stato.forEach((prod, index) => {
     const itemInCarrello = carrello.find(c => c.index === index);
@@ -174,7 +173,6 @@ document.querySelectorAll(".btn-quick").forEach(btn => {
   });
 });
 
-// Calcola il resto monetario dell'operazione di cassa
 function calcolaResto() {
   const tot = parseFloat(totalPriceEl.innerText) || 0;
   const dato = parseFloat(cashGiven.value) || 0;
@@ -201,7 +199,7 @@ function svuotaTutto() {
   updateCarrelloEInterfaccia();
 }
 
-// ================= FUNZIONE CONFERMA E STAMPA =================
+// ================= FUNZIONE CONFERMA E STAMPA (OTTIMIZZATA PER POS-58) =================
 confirmBtn.addEventListener("click", () => {
   const famiglia = document.getElementById("famigliaInput").value.trim();
   const tavolo = document.getElementById("tavoloInput").value.trim();
@@ -211,9 +209,75 @@ confirmBtn.addEventListener("click", () => {
   if (!metodoPagamento) { alert("Seleziona un metodo di pagamento!"); return; }
   if (!famiglia) { alert("Inserisci il nome della Famiglia/Persona!"); return; }
 
+  // Rimuove vecchi scontrini e stili temporanei di stampa precedenti
   const vecchioScontrino = document.getElementById("print-ticket");
   if (vecchioScontrino) vecchioScontrino.remove();
+  const vecchioStile = document.getElementById("pos58-style");
+  if (vecchioStile) vecchioStile.remove();
 
+  // 1. INIETTA LO STILE CSS SPECIFICO PER STAMPANTI DA 58mm
+  const styleEl = document.createElement("style");
+  styleEl.id = "pos58-style";
+  styleEl.innerHTML = `
+    @media print {
+      body * { visibility: hidden; }
+      #print-ticket, #print-ticket * { visibility: visible; }
+      #print-ticket {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 58mm;
+        max-width: 58mm;
+        padding: 0 2mm;
+        box-sizing: border-box;
+        font-family: 'Courier New', Courier, monospace;
+        font-size: 11px;
+        line-height: 1.2;
+        color: #000;
+        background: #fff;
+      }
+      @page {
+        size: 58mm auto;
+        margin: 0;
+      }
+      .ticket-header { text-align: center; margin-bottom: 4px; }
+      .ticket-header h2 { font-size: 14px; margin: 0 0 2px 0; font-weight: bold; }
+      .ticket-header p { margin: 1px 0; font-size: 11px; }
+      .ticket-items { margin-top: 4px; }
+      .ticket-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 2px;
+      }
+      .ticket-row span:first-child {
+        text-align: left;
+        padding-right: 2px;
+        word-break: break-all;
+      }
+      .ticket-row span:last-child {
+        text-align: right;
+        white-space: nowrap;
+      }
+      .ticket-footer { text-align: center; margin-top: 4px; }
+      .ticket-total {
+        display: flex;
+        justify-content: space-between;
+        font-weight: bold;
+        font-size: 13px;
+        margin: 4px 0;
+        border-top: 1px dashed #000;
+        border-bottom: 1px dashed #000;
+        padding: 2px 0;
+      }
+      .ticket-footer p { margin: 1px 0; text-align: left; }
+      .ticket-footer .grazie { text-align: center; font-weight: bold; margin-top: 6px; }
+      .spazio-taglio { height: 35mm; display: block; content: " "; }
+    }
+  `;
+  document.head.appendChild(styleEl);
+
+  // 2. CREAZIONE STRUTTURA SCONTRINO
   const ticket = document.createElement("div");
   ticket.id = "print-ticket";
 
@@ -224,20 +288,22 @@ confirmBtn.addEventListener("click", () => {
   let ticketHTML = `
     <div class="ticket-header">
       <h2>CRE ORATORIO</h2>
-      <p>--------------------</p>
-      <p><b>D:</b> ${dataStr} - <b>Ora:</b> ${oraStr}</p>
+      <p>----------------------------</p>
+      <p><b>Data:</b> ${dataStr} - <b>Ora:</b> ${oraStr}</p>
       <p><b>F:</b> ${famiglia.toUpperCase()}</p>
       <p><b>Tav:</b> ${tavolo || '-'} | <b>P:</b> ${persone || '-'}</p>
-      <p>--------------------</p>
+      <p>----------------------------</p>
     </div>
     <div class="ticket-items">
   `;
 
   carrello.forEach(item => {
     const subTot = (item.price * item.qta).toFixed(2);
+    // Pulizia icone ed emoji
     let nomePulito = item.name.replace(/[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2011-\u26FF]|\uD83E[\uDD10-\uDDFF]/g, '').trim();
     
-    if (nomePulito.length > 10) nomePulito = nomePulito.substring(0, 8) + "..";
+    // Ottimizzato per 58mm: taglia a 14 caratteri se il nome è troppo lungo, per evitare sovrapposizioni
+    if (nomePulito.length > 14) nomePulito = nomePulito.substring(0, 12) + "..";
 
     ticketHTML += `
       <div class="ticket-row">
@@ -253,20 +319,21 @@ confirmBtn.addEventListener("click", () => {
     </div>
     <div class="ticket-footer">
       <div class="ticket-total">
-        <span>TOT:</span>
+        <span>TOTALE:</span>
         <span>€${totaleFinale}</span>
       </div>
-      <p><b>Pag:</b> ${metodoPagamento.toUpperCase()}</p>
-      ${metodoPagamento === "contanti" && parseFloat(cashGiven.value) > 0 ? `<p><b>Ric:</b> €${parseFloat(cashGiven.value).toFixed(2)}</p><p><b>Resto:</b> €${restoEl.innerText}</p>` : ''}
-      <p>--------------------</p>
+      <p><b>Pagamento:</b> ${metodoPagamento.toUpperCase()}</p>
+      ${metodoPagamento === "contanti" && parseFloat(cashGiven.value) > 0 ? `<p><b>Ricevuti:</b> €${parseFloat(cashGiven.value).toFixed(2)}</p><p><b>Resto:</b> €${restoEl.innerText}</p>` : ''}
+      <p>----------------------------</p>
       <p class="grazie">Buon appetito!</p>
-      <p class="spazio-taglio">.</p>
+      <div class="spazio-taglio"></div>
     </div>
   `;
 
   ticket.innerHTML = ticketHTML;
   document.body.appendChild(ticket);
 
+  // 3. SINCRONIZZAZIONE E INVIO ALLA STAMPANTE
   const aggiornamentiDb = {};
   carrello.forEach(item => {
     aggiornamentiDb[`prodotti/${item.index}/max`] = stato[item.index].max - item.qta;
@@ -307,7 +374,7 @@ function renderAdminPanel() {
         <button style="width:24px; height:24px; font-weight:bold; cursor:pointer;" onclick="aggiornaScortaServer(${index}, -1)">-1</button>
         <span style="font-weight: bold; width: 40px; text-align:center; color: #4f46e5;">${prod.max}</span>
         <button style="width:24px; height:24px; font-weight:bold; cursor:pointer;" onclick="aggiornaScortaServer(${index}, 1)">+1</button>
-        <button style="width:24px; height:24px; font-weight:bold; cursor:pointer;" onclick="aggiornaScortaServer(${index}, 5)">+5</button>
+        <button style="width:24px; height:24px; font-weight:bold; cursor:pointer;" onclick="aggiarnaScortaServer(${index}, 5)">+5</button>
       </div>
     `;
     adminItemsList.appendChild(div);
