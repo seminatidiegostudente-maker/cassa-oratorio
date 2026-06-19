@@ -197,7 +197,7 @@ function svuotaTutto() {
   updateCarrelloEInterfaccia();
 }
 
-// ================= FUNZIONE CONFERMA E STAMPA (OTTIMIZZATA POS-58) =================
+// ================= FUNZIONE CONFERMA E STAMPA (SPOSTATO TUTTO A SINISTRA) =================
 confirmBtn.addEventListener("click", () => {
   const famiglia = document.getElementById("famigliaInput").value.trim();
   const tavolo = document.getElementById("tavoloInput").value.trim();
@@ -207,11 +207,9 @@ confirmBtn.addEventListener("click", () => {
   if (!metodoPagamento) { alert("Seleziona un metodo di pagamento!"); return; }
   if (!famiglia) { alert("Inserisci il nome della Famiglia/Persona!"); return; }
 
-  // 1. Rimuove eventuali scontrini stampati precedentemente
   const vecchioScontrino = document.getElementById("print-ticket");
   if (vecchioScontrino) vecchioScontrino.remove();
 
-  // 2. Crea il contenitore temporaneo per lo scontrino
   const ticket = document.createElement("div");
   ticket.id = "print-ticket";
 
@@ -219,24 +217,24 @@ confirmBtn.addEventListener("click", () => {
   const dataStr = d.toLocaleDateString('it-IT');
   const oraStr = d.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' });
 
+  // Divisori accorciati a 26 caratteri per stare perfettamente a sinistra su rotoli stretti
   let ticketHTML = `
     <div class="ticket-header">
       <h2>CASSA CRE ORATORIO</h2>
-      <p>--------------------------------</p>
+      <p>--------------------------</p>
       <p><b>Data:</b> ${dataStr} - <b>Ora:</b> ${oraStr}</p>
       <p><b>Fam:</b> ${famiglia.toUpperCase()}</p>
-      <p><b>Tavolo:</b> ${tavolo || '-'}  |  <b>Persone:</b> ${persone || '-'}</p>
-      <p>--------------------------------</p>
+      <p><b>Tav:</b> ${tavolo || '-'} | <b>Pers:</b> ${persone || '-'}</p>
+      <p>--------------------------</p>
     </div>
     <div class="ticket-items">
   `;
 
-  // Ciclo dei prodotti nel carrello pulito dalle emoji per sicurezza di stampa
   carrello.forEach(item => {
     const subTot = (item.price * item.qta).toFixed(2);
-    // Pulizia emoji e troncamento a 16 caratteri per non rompere l'incolonnamento sui 58mm
+    // Tolgo emoji e accorcio a soli 13 caratteri per evitare sbalzi a destra
     let nomePulito = item.name.replace(/[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2011-\u26FF]|\uD83E[\uDD10-\uDDFF]/g, '').trim();
-    if (nomePulito.length > 16) nomePulito = nomePulito.substring(0, 14) + "..";
+    if (nomePulito.length > 13) nomePulito = nomePulito.substring(0, 11) + "..";
 
     ticketHTML += `
       <div class="ticket-row">
@@ -255,9 +253,9 @@ confirmBtn.addEventListener("click", () => {
         <span>TOTALE:</span>
         <span>€${totaleFinale}</span>
       </div>
-      <p><b>Pagamento:</b> ${metodoPagamento.toUpperCase()}</p>
+      <p><b>Pag:</b> ${metodoPagamento.toUpperCase()}</p>
       ${metodoPagamento === "contanti" && parseFloat(cashGiven.value) > 0 ? `<p><b>Ricevuto:</b> €${parseFloat(cashGiven.value).toFixed(2)}</p><p><b>Resto:</b> €${restoEl.innerText}</p>` : ''}
-      <p>--------------------------------</p>
+      <p>--------------------------</p>
       <p class="grazie">Buon appetito!</p>
       <p class="spazio-taglio">.</p>
     </div>
@@ -266,7 +264,6 @@ confirmBtn.addEventListener("click", () => {
   ticket.innerHTML = ticketHTML;
   document.body.appendChild(ticket);
 
-  // 3. Esegue la transazione scalando dal database Firebase (Coordinamento Live Casse)
   const aggiornamentiDb = {};
   carrello.forEach(item => {
     aggiornamentiDb[`prodotti/${item.index}/max`] = stato[item.index].max - item.qta;
@@ -274,7 +271,6 @@ confirmBtn.addEventListener("click", () => {
 
   db.ref().update(aggiornamentiDb)
     .then(() => {
-      // 4. Lancia la stampa di sistema del browser
       window.print();
       svuotaTutto();
     })

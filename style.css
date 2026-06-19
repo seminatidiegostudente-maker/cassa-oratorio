@@ -336,56 +336,62 @@ input:focus { border-color: #4f46e5; }
 .restoBox .resto-value { font-size: 24px; font-weight: 900; color: #dc2626; }
 
 /* ==========================================================================
-   STAMPA SPECIFICA PER STAMPANTE TERMICA POS-58 (58mm)
+   STAMPA SPECIFICA PER STAMPANTE TERMICA POS-58 (SPOSTATO A SINISTRA)
    ========================================================================== */
 
-/* Di base, nascondiamo lo scontrino di stampa sullo schermo del computer */
 #print-ticket {
   display: none;
 }
 
 @media print {
-  /* Nasconde tutta l'interfaccia della cassa */
+  /* Nasconde completamente l'interfaccia a schermo */
   html, body, .container, .left-panel, .right-panel, .bottom-bar, #adminPanel {
     display: none !important;
     height: auto !important;
     overflow: visible !important;
   }
 
-  /* Mostra solo l'elemento scontrino */
+  /* Forza il posizionamento dello scontrino tutto a sinistra */
   #print-ticket {
     display: block !important;
-    width: 54mm; /* Ampiezza massima di stampa effettiva su rotolo da 58mm */
-    margin: 0;
+    width: 48mm; /* Ridotto da 54 a 48mm per rientrare nei margini fisici sinistri */
+    margin-left: 0mm !important;
+    margin-right: auto !important;
+    margin-top: 0mm;
+    margin-bottom: 0mm;
     padding: 0;
-    font-family: "Courier New", Courier, monospace; /* Font a larghezza fissa da scontrino */
-    font-size: 12px;
-    line-height: 1.4;
+    font-family: "Courier New", Courier, monospace;
+    font-size: 11px; /* Font leggermente ridotto per sicurezza */
+    line-height: 1.3;
     color: #000;
     background: #fff;
+    float: left; /* Spinge tutto a sinistra */
   }
 
-  /* Impostazioni della pagina (Rimuove intestazioni del browser tipo data e URL della pagina) */
+  /* Impostazioni pagina di stampa senza margini browser */
   @page {
     size: 58mm auto;
-    margin: 0mm;
+    margin-left: 0mm;
+    margin-right: 0mm;
+    margin-top: 0mm;
+    margin-bottom: 0mm;
   }
 
   .ticket-header {
-    text-align: center;
+    text-align: left; /* Allineato a sinistra invece che centrato per sicurezza visiva */
     margin-bottom: 4px;
   }
 
   .ticket-header h2 {
-    font-size: 13px;
+    font-size: 12px;
     font-weight: bold;
     margin-bottom: 2px;
+    text-align: center; /* Titolo centrato nel suo piccolo spazio */
   }
 
   .ticket-header p {
     font-size: 11px;
     margin: 1px 0;
-    text-align: left;
   }
 
   .ticket-items {
@@ -394,7 +400,7 @@ input:focus { border-color: #4f46e5; }
 
   .ticket-row {
     display: flex;
-    justify-content: space-between;
+    justify-content: space-between; /* Forza Nome a sinistra e Prezzo a destra */
     font-size: 11px;
     margin-bottom: 2px;
   }
@@ -407,7 +413,7 @@ input:focus { border-color: #4f46e5; }
   .ticket-total {
     display: flex;
     justify-content: space-between;
-    font-size: 14px;
+    font-size: 13px;
     font-weight: bold;
     margin: 4px 0;
     border-top: 1px dashed #000;
@@ -421,7 +427,6 @@ input:focus { border-color: #4f46e5; }
     margin-top: 8px;
   }
 
-  /* Spazio di cortesia in fondo per evitare che la taglierina tagli l'ultima riga di testo */
   .spazio-taglio {
     color: white;
     height: 30px;
