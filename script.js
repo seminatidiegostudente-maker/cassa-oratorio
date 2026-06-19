@@ -14,6 +14,7 @@ if (!firebase.apps.length) {
 }
 const db = firebase.database();
 
+
 const prodottiIniziali = [
   { name: "🥟 La sbobba del cavaliere (Casoncelli)", price: 6, max: 100 },
   { name: "🥟 Le scarpe dell'orco (Scarpinocc)", price: 6, max: 100 },
