@@ -15,12 +15,12 @@ if (!firebase.apps.length) {
 const db = firebase.database();
 
 const prodottiIniziali = [
-  { name: "🥟 La sbobba del cavaliere (Casoncelli)", price: 6, max: 100 },
-  { name: "🥟 Le scarpe dell'orco (Scarpinocc)", price: 6, max: 100 },
-  { name: "🍞 Il sacco del viandante (Pane e cotechino)", price: 4, max: 100 },
-  { name: "🍔 Il panino del re (Hamburger+Patatine)", price: 8, max: 120 },
-  { name: "🥬 Il panino del re veg (Hamburger Veg+Patatine)", price: 8, max: 20 },
-  { name: "🧆 Pepite d'oriente (Falafel)", price: 5, max: 40 },
+  { name: "🥟 Casoncelli", price: 6, max: 100 },
+  { name: "🥟 Scarpinocc", price: 6, max: 100 },
+  { name: "🍞 Pane e cotechino", price: 4, max: 100 },
+  { name: "🍔 Hamburger+Patatine", price: 8, max: 120 },
+  { name: "🥬 Hamburger Veg+Patatine", price: 8, max: 20 },
+  { name: "🧆 Falafel", price: 5, max: 40 },
   { name: "🥩 Roastbeef", price: 5, max: 40 },
   { name: "🍟 Patatine Fritte", price: 3, max: 5000 },
 ];
