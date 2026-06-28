@@ -108,7 +108,7 @@ window.cambiaQta = function(index, delta) {
   const qtaAttuale = itemInCarrello ? itemInCarrello.qta : 0;
   const nuovaQta = qtaAttuale + delta;
 
-  if (nuovaQta > prodServer.max || nuovaQta < 0) return;
+  if (nuovaQta > prodServer.max || nuevaQta < 0) return;
 
   if (nuovaQta === 0) {
     carrello = carrello.filter(c => c.index !== index);
@@ -198,7 +198,7 @@ function svuotaTutto() {
   updateCarrelloEInterfaccia();
 }
 
-// ================= FUNZIONE CONFERMA E STAMPA (POS-58 OTTIMIZZATA) =================
+// ================= FUNZIONE CONFERMA E STAMPA ECO-COMPATTA =================
 confirmBtn.addEventListener("click", () => {
   const famiglia = document.getElementById("famigliaInput").value.trim();
   const tavolo = document.getElementById("tavoloInput").value.trim();
@@ -208,37 +208,34 @@ confirmBtn.addEventListener("click", () => {
   if (!metodoPagamento) { alert("Seleziona un metodo di pagamento!"); return; }
   if (!famiglia) { alert("Inserisci il nome della Famiglia/Persona!"); return; }
 
-  // Rimuove eventuali scontrini precedenti rimasti appesi al DOM
+  // Pulisce vecchi scontrini rimasti appesi al DOM
   const vecchioScontrino = document.getElementById("print-ticket");
   if (vecchioScontrino) vecchioScontrino.remove();
 
-  // 1. CREAZIONE STRUTTURA SCONTRINO
   const ticket = document.createElement("div");
   ticket.id = "print-ticket";
 
   const d = new Date();
-  const dataStr = d.toLocaleDateString('it-IT');
+  const dataStr = d.toLocaleDateString('it-IT', {day: '2-digit', month: '2-digit'});
   const oraStr = d.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' });
 
+  // Struttura densa: più info accorpate sulla stessa riga
   let ticketHTML = `
     <div class="ticket-header">
       <h2>CRE ORATORIO</h2>
-      <p>----------------------------</p>
-      <p><b>Data:</b> ${dataStr} - <b>Ora:</b> ${oraStr}</p>
-      <p><b>F:</b> ${famiglia.toUpperCase()}</p>
-      <p><b>Tav:</b> ${tavolo || '-'} | <b>P:</b> ${persone || '-'}</p>
-      <p>----------------------------</p>
+      <p>${dataStr} ${oraStr} | <b>Tav:</b> ${tavolo || '-'} (P:${persone || '-'})</p>
+      <p><b>FAMIGLIA:</b> ${famiglia.toUpperCase()}</p>
     </div>
     <div class="ticket-items">
   `;
 
   carrello.forEach(item => {
     const subTot = (item.price * item.qta).toFixed(2);
-    // Pulizia totale icone ed emoji (Incompatibili con stampanti termiche vecchie)
+    // Rimozione totale emoji ed icone (non digerite dalle stampanti termiche)
     let nomePulito = item.name.replace(/[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2011-\u26FF]|\uD83E[\uDD10-\uDDFF]/g, '').trim();
     
-    // Taglio della stringa per incolonnamento perfetto su fogli corti (max 16 caratteri per il nome)
-    if (nomePulito.length > 16) nomePulito = nomePulito.substring(0, 14) + "..";
+    // Taglio a 18 caratteri per evitare che il nome vada a capo allungando lo scontrino
+    if (nomePulito.length > 18) nomePulito = nomePulito.substring(0, 16) + "..";
 
     ticketHTML += `
       <div class="ticket-row">
@@ -250,6 +247,7 @@ confirmBtn.addEventListener("click", () => {
 
   const totaleFinale = totalPriceEl.innerText;
 
+  // Footer super compatto
   ticketHTML += `
     </div>
     <div class="ticket-footer">
@@ -257,9 +255,7 @@ confirmBtn.addEventListener("click", () => {
         <span>TOTALE:</span>
         <span>€${totaleFinale}</span>
       </div>
-      <p><b>Pagamento:</b> ${metodoPagamento.toUpperCase()}</p>
-      ${metodoPagamento === "contanti" && parseFloat(cashGiven.value) > 0 ? `<p><b>Ricevuti:</b> €${parseFloat(cashGiven.value).toFixed(2)}</p><p><b>Resto:</b> €${restoEl.innerText}</p>` : ''}
-      <p>----------------------------</p>
+      <p><b>Pag:</b> ${metodoPagamento.toUpperCase()}${metodoPagamento === "contanti" && parseFloat(cashGiven.value) > 0 ? ` [Ricevuti: €${parseFloat(cashGiven.value).toFixed(2)} - Resto: €${restoEl.innerText}]` : ''}</p>
       <p class="grazie">Buon appetito!</p>
       <div class="spazio-taglio"></div>
     </div>
@@ -268,7 +264,6 @@ confirmBtn.addEventListener("click", () => {
   ticket.innerHTML = ticketHTML;
   document.body.appendChild(ticket);
 
-  // 2. AGGIORNAMENTO DATABASE E TRIGGER DI STAMPA CON TIMEOUT FLUIDO
   const aggiornamentiDb = {};
   carrello.forEach(item => {
     aggiornamentiDb[`prodotti/${item.index}/max`] = stato[item.index].max - item.qta;
@@ -276,7 +271,7 @@ confirmBtn.addEventListener("click", () => {
 
   db.ref().update(aggiornamentiDb)
     .then(() => {
-      // Timeout a 300ms per permettere al browser di applicare correttamente il layout CSS di stampa
+      // 300ms di ritardo per dare tempo al browser di applicare lo stile CSS di stampa
       setTimeout(() => {
         window.print();
         svuotaTutto();

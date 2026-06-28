@@ -337,7 +337,7 @@ input:focus { border-color: #4f46e5; }
 
 
 /* ==========================================================================
-   STAMPA RIGIDA CORRETTA PER STAMPANTE TERMICA POS-58
+   STAMPA ULTRA-COMPATTA RISPARMIO CARTA PER STAMPANTE TERMICA POS-58
    ========================================================================== */
 
 #print-ticket {
@@ -345,75 +345,75 @@ input:focus { border-color: #4f46e5; }
 }
 
 @media print {
-  /* 1. Blocca le dimensioni fisiche del foglio */
+  /* 1. Blocca le dimensioni fisiche del foglio termico */
   @page {
     size: 58mm auto;
     margin: 0mm !important;
   }
 
-  /* 2. Nasconde ESCLUSIVAMENTE i blocchi interfaccia dello schermo (il body rimane attivo) */
+  /* 2. Nasconde l'interfaccia principale dello schermo senza rompere il body */
   .container, #adminPanel {
     display: none !important;
   }
 
-  /* 3. Forza la sola visibilità dello scontrino */
+  /* 3. Struttura scontrino super densa */
   #print-ticket {
     display: block !important;
     position: absolute;
     left: 0;
     top: 0;
-    width: 52mm !important; /* Area stampabile reale su rotoli da 58mm */
+    width: 52mm !important; /* Area utile reale */
     margin: 0 auto !important;
-    padding: 2mm 1mm !important;
+    padding: 1mm 1mm !important; 
     font-family: 'Courier New', Courier, monospace !important;
-    font-size: 12px !important;
-    line-height: 1.3 !important;
+    font-size: 11px !important; /* Testo compatto */
+    line-height: 1.1 !important; /* Interlinea stretta */
     color: #000 !important;
     background: #fff !important;
   }
 
-  /* Forza i figli ad apparire visibili all'interno del blocco di stampa */
+  /* Rende visibili tutti i nodi interni */
   #print-ticket * {
     display: block !important;
   }
 
-  /* Allineamenti macro sezioni dello scontrino */
-  .ticket-header { text-align: center !important; margin-bottom: 5px; }
-  .ticket-header h2 { font-size: 14px !important; font-weight: bold !important; margin: 0 0 2px 0; }
-  .ticket-header p { margin: 1px 0 !important; }
+  /* Intestazione densa senza spazi sprecati */
+  .ticket-header { text-align: center !important; margin-bottom: 2px; }
+  .ticket-header h2 { font-size: 13px !important; font-weight: bold !important; margin: 0 0 1px 0; }
+  .ticket-header p { margin: 0px 0 !important; font-size: 11px !important; }
   
-  .ticket-items { margin-top: 5px; }
+  .ticket-items { margin-top: 2px; border-top: 1px dashed #000; padding-top: 2px; }
 
-  /* Incolonnamento perfetto Quantità + Nome a Sinistra e Prezzo a Destra */
+  /* Incolonnamento piatti */
   #print-ticket .ticket-row {
     display: flex !important;
     justify-content: space-between !important;
     align-items: flex-start !important;
     width: 100% !important;
-    margin-bottom: 3px !important;
+    margin-bottom: 1px !important;
   }
 
   .ticket-col-name { text-align: left !important; flex: 1; word-break: break-all; }
-  .ticket-col-price { text-align: right !important; white-space: nowrap; padding-left: 4px; display: inline-block !important; }
+  .ticket-col-price { text-align: right !important; white-space: nowrap; padding-left: 2px; display: inline-block !important; }
 
-  /* Linea di chiusura e calcolo totale */
+  /* Sezione Totale stringata */
   #print-ticket .ticket-total {
     display: flex !important;
     justify-content: space-between !important;
     font-weight: bold !important;
-    font-size: 14px !important;
-    margin: 6px 0 !important;
+    font-size: 13px !important;
+    margin: 3px 0 !important;
     border-top: 1px dashed #000 !important;
     border-bottom: 1px dashed #000 !important;
-    padding: 4px 0 !important;
+    padding: 2px 0 !important;
   }
 
-  .ticket-footer p { margin: 2px 0 !important; text-align: left !important; }
-  .ticket-footer .grazie { text-align: center !important; font-weight: bold !important; margin-top: 8px; }
+  .ticket-footer p { margin: 0px 0 !important; text-align: left !important; }
+  .ticket-footer .grazie { text-align: center !important; font-weight: bold !important; margin-top: 3px; }
 
-  /* Feed di avanzamento carta per evitare tagli di testo a fine scontrino */
+  /* Spazio di taglio ridotto al minimo indispensabile (8mm per evitare sprechi) */
   .spazio-taglio {
-    height: 20mm !important;
+    height: 8mm !important;
     display: block !important;
   }
 }
