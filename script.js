@@ -14,7 +14,7 @@ if (!firebase.apps.length) {
 }
 const db = firebase.database();
 
-// LISTA PRODOTTI AGGIORNATA (SOLO I NOMI TRA PARENTESI)
+// LISTA PRODOTTI REALE: TOTALMENTE PRIVA DI EMOJI PER EVITARE RITORNI A CAPO
 const prodottiIniziali = [
   { name: "Casoncelli", price: 6, max: 100 },
   { name: "Scarpinocc", price: 6, max: 100 },
@@ -199,7 +199,7 @@ function svuotaTutto() {
   updateCarrelloEInterfaccia();
 }
 
-// ================= FUNZIONE CONFERMA E STAMPA ECO-COMPATTA =================
+// ================= FUNZIONE CONFERMA E STAMPA ULTRA-OTTIMIZZATA =================
 confirmBtn.addEventListener("click", () => {
   const famiglia = document.getElementById("famigliaInput").value.trim();
   const tavolo = document.getElementById("tavoloInput").value.trim();
@@ -232,7 +232,8 @@ confirmBtn.addEventListener("click", () => {
     const subTot = (item.price * item.qta).toFixed(2);
     let nomePulito = item.name;
     
-    if (nomePulito.length > 18) nomePulito = nomePulito.substring(0, 16) + "..";
+    // Esteso a 22 caratteri: ora "Hamburger Veg+Patatine" (21 caratteri) entra interamente in una riga!
+    if (nomePulito.length > 22) nomePulito = nomePulito.substring(0, 20) + "..";
 
     ticketHTML += `
       <div class="ticket-row">
