@@ -14,7 +14,6 @@ if (!firebase.apps.length) {
 }
 const db = firebase.database();
 
-// LISTA PRODOTTI REALE: TOTALMENTE PRIVA DI EMOJI PER EVITARE RITORNI A CAPO
 const prodottiIniziali = [
   { name: "Casoncelli", price: 6, max: 100 },
   { name: "Scarpinocc", price: 6, max: 100 },
@@ -46,9 +45,19 @@ const adminPanel = document.getElementById("adminPanel");
 const adminItemsList = document.getElementById("adminItemsList");
 const closeAdminBtn = document.getElementById("closeAdminBtn");
 
+// Modal Elements
+const ingredientsModal = document.getElementById("ingredientsModal");
+const modalTitle = document.getElementById("modalTitle");
+const saveIngredientsBtn = document.getElementById("saveIngredients");
+const cancelIngredientsBtn = document.getElementById("cancelIngredients");
+
 let stato = [];
-let carrello = [];
+let carrello = []; // Conterrà oggetti con { idUnico, index, name, price, qta: 1, dettagli: "..." }
 let metodoPagamento = "";
+
+// Variabili temporanee per la gestione del popup ingredienti
+let pendingIndex = null;
+let pendingDelta = null;
 
 // ================= CLOCK LIVE =================
 function updateClock() {
@@ -77,8 +86,8 @@ function renderProdotti() {
   if (!stato) return;
   
   stato.forEach((prod, index) => {
-    const itemInCarrello = carrello.find(c => c.index === index);
-    const qtaSelezionata = itemInCarrello ? itemInCarrello.qta : 0;
+    // Calcola quanti pezzi di questo specifico prodotto (index) sono nel carrello in totale
+    const qtaSelezionata = carrello.filter(c => c.index === index).length;
     const rimasti = prod.max - qtaSelezionata;
 
     const div = document.createElement("div");
@@ -105,39 +114,109 @@ function renderProdotti() {
 // ================= LOGICA CARRELLO LOCALE =================
 window.cambiaQta = function(index, delta) {
   const prodServer = stato[index];
-  const itemInCarrello = carrello.find(c => c.index === index);
-  const qtaAttuale = itemInCarrello ? itemInCarrello.qta : 0;
-  const nuovaQta = qtaAttuale + delta;
-
-  if (nuovaQta > prodServer.max || nuovaQta < 0) return;
-
-  if (nuovaQta === 0) {
-    carrello = carrello.filter(c => c.index !== index);
-  } else {
-    if (itemInCarrello) {
-      itemInCarrello.qta = nuovaQta;
-    } else {
-      carrello.push({ index, name: prodServer.name, price: prodServer.price, qta: nuovaQta });
+  
+  if (delta === 1) {
+    // Se è un hamburger, apriamo il popup degli ingredienti prima di inserirlo
+    if (prodServer.name.includes("Hamburger")) {
+      pendingIndex = index;
+      pendingDelta = delta;
+      apriModalIngredienti(prodServer.name);
+      return; 
     }
+    // Altrimenti inserimento diretto standard
+    inserisciNelCarrello(index, "");
+  } else {
+    // Rimozione: toglie l'ultimo inserito di quel tipo
+    const indexDaRimuovere = carrello.map(c => c.index).lastIndexOf(index);
+    if (indexDaRimuovere !== -1) {
+      carrello.splice(indexDaRimuovere, 1);
+    }
+    renderProdotti();
+    updateCarrelloEInterfaccia();
   }
-  renderProdotti();
-  updateCarrelloEInterfaccia();
 };
 
+function inserisciNelCarrello(index, dettagli) {
+  const prodServer = stato[index];
+  carrello.push({
+    idUnico: Date.now() + Math.random(),
+    index: index,
+    name: prodServer.name,
+    price: prodServer.price,
+    dettagli: dettagli
+  });
+  renderProdotti();
+  updateCarrelloEInterfaccia();
+}
+
+// ================= POPUP GESTIONE INGREDIENTI =================
+function apriModalIngredienti(nomeHamburger) {
+  modalTitle.innerText = "Farcitura " + nomeHamburger;
+  // Resetta i checkbox a selezionati di default
+  document.getElementById("ing-insalata").checked = true;
+  document.getElementById("ing-formaggio").checked = true;
+  document.getElementById("ing-pomodori").checked = true;
+  document.getElementById("ing-maionese").checked = true;
+  document.getElementById("ing-ketchup").checked = true;
+  
+  ingredientsModal.style.display = "flex";
+}
+
+cancelIngredientsBtn.addEventListener("click", () => {
+  ingredientsModal.style.display = "none";
+  pendingIndex = null;
+  pendingDelta = null;
+});
+
+saveIngredientsBtn.addEventListener("click", () => {
+  const opzioni = [];
+  if (document.getElementById("ing-insalata").checked) opzioni.push("Insalata");
+  if (document.getElementById("ing-formaggio").checked) opzioni.push("Formaggio");
+  if (document.getElementById("ing-pomodori").checked) opzioni.push("Pomodori");
+  if (document.getElementById("ing-maionese").checked) opzioni.push("Maionese");
+  if (document.getElementById("ing-ketchup").checked) opzioni.push("Ketchup");
+
+  let stringaDettagli = "";
+  if (opzioni.length === 5) {
+    stringaDettagli = "Tutto dentro";
+  } else if (opzioni.length === 0) {
+    stringaDettagli = "Solo carne";
+  } else {
+    stringaDettagli = opzioni.join(", ");
+  }
+
+  ingredientsModal.style.display = "none";
+  inserisciNelCarrello(pendingIndex, stringaDettagli);
+  pendingIndex = null;
+  pendingDelta = null;
+});
+
+// Raggruppa i prodotti simili nel carrello SOLO per visualizzarli nel riepilogo dello schermo
 function updateCarrelloEInterfaccia() {
   summary.innerHTML = "";
-  let totPezzi = 0;
+  let totPezzi = carrello.length;
   let totPrezzo = 0;
 
-  carrello.forEach(item => {
-    totPezzi += item.qta;
-    const subTot = item.price * item.qta;
-    totPrezzo += subTot;
+  // Mostra ogni singolo elemento nel riepilogo, utile per vedere le farciture diverse
+  carrello.forEach((item) => {
+    totPrezzo += item.price;
+
+    const wrapper = document.createElement("div");
+    wrapper.className = "summary-row-wrapper";
 
     const row = document.createElement("div");
     row.className = "summary-row";
-    row.innerHTML = `<span>${item.qta}x ${item.name}</span> <span>€${subTot.toFixed(2)}</span>`;
-    summary.appendChild(row);
+    row.innerHTML = `<span>1x ${item.name}</span> <span>€${item.price.toFixed(2)}</span>`;
+    wrapper.appendChild(row);
+
+    if (item.dettagli) {
+      const details = document.createElement("div");
+      details.className = "summary-details";
+      details.innerText = `[${item.dettagli}]`;
+      wrapper.appendChild(details);
+    }
+
+    summary.appendChild(wrapper);
   });
 
   totalEl.innerText = totPezzi;
@@ -199,7 +278,7 @@ function svuotaTutto() {
   updateCarrelloEInterfaccia();
 }
 
-// ================= FUNZIONE CONFERMA E STAMPA ULTRA-OTTIMIZZATA =================
+// ================= FUNZIONE CONFERMA E STAMPA CON DETTAGLIO FARCITURE =================
 confirmBtn.addEventListener("click", () => {
   const famiglia = document.getElementById("famigliaInput").value.trim();
   const tavolo = document.getElementById("tavoloInput").value.trim();
@@ -228,11 +307,20 @@ confirmBtn.addEventListener("click", () => {
     <div class="ticket-items">
   `;
 
+  // Per lo scontrino uniamo i prodotti uguali che hanno anche gli STESSI ingredienti, ottimizzando lo spazio
+  const carrelloCompattato = [];
   carrello.forEach(item => {
+    const esistente = carrelloCompattato.find(c => c.index === item.index && c.dettagli === item.dettagli);
+    if (esistente) {
+      esistente.qta += 1;
+    } else {
+      carrelloCompattato.push({ ...item, qta: 1 });
+    }
+  });
+
+  carrelloCompattato.forEach(item => {
     const subTot = (item.price * item.qta).toFixed(2);
     let nomePulito = item.name;
-    
-    // Esteso a 22 caratteri: ora "Hamburger Veg+Patatine" (21 caratteri) entra interamente in una riga!
     if (nomePulito.length > 22) nomePulito = nomePulito.substring(0, 20) + "..";
 
     ticketHTML += `
@@ -241,6 +329,9 @@ confirmBtn.addEventListener("click", () => {
         <span class="ticket-col-price">€${subTot}</span>
       </div>
     `;
+    if(item.dettagli) {
+      ticketHTML += `<div class="ticket-col-details">> ${item.dettagli}</div>`;
+    }
   });
 
   const totaleFinale = totalPriceEl.innerText;
@@ -261,9 +352,15 @@ confirmBtn.addEventListener("click", () => {
   ticket.innerHTML = ticketHTML;
   document.body.appendChild(ticket);
 
-  const aggiornamentiDb = {};
+  // Calcolo dei decrementi totali da inviare a Firebase per ciascun prodotto
+  const conteggioPerIndex = {};
   carrello.forEach(item => {
-    aggiornamentiDb[`prodotti/${item.index}/max`] = stato[item.index].max - item.qta;
+    conteggioPerIndex[item.index] = (conteggioPerIndex[item.index] || 0) + 1;
+  });
+
+  const aggiornamentiDb = {};
+  Object.keys(conteggioPerIndex).forEach(index => {
+    aggiornamentiDb[`prodotti/${index}/max`] = stato[index].max - conteggioPerIndex[index];
   });
 
   db.ref().update(aggiornamentiDb)

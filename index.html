@@ -92,6 +92,33 @@
 
 </div>
 
+<div id="ingredientsModal" class="modal-overlay">
+  <div class="modal-content">
+    <h3 id="modalTitle">Personalizza Hamburger</h3>
+    <div class="ingredients-list">
+      <label class="check-container">
+        <input type="checkbox" id="ing-insalata" checked> Insalata
+      </label>
+      <label class="check-container">
+        <input type="checkbox" id="ing-formaggio" checked> Formaggio
+      </label>
+      <label class="check-container">
+        <input type="checkbox" id="ing-pomodori" checked> Pomodori
+      </label>
+      <label class="check-container">
+        <input type="checkbox" id="ing-maionese" checked> Maionese
+      </label>
+      <label class="check-container">
+        <input type="checkbox" id="ing-ketchup" checked> Ketchup
+      </label>
+    </div>
+    <div class="modal-actions">
+      <button id="cancelIngredients" class="btn-modal-cancel">Annulla</button>
+      <button id="saveIngredients" class="btn-modal-save">Conferma</button>
+    </div>
+  </div>
+</div>
+
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
 <script src="script.js"></script>
