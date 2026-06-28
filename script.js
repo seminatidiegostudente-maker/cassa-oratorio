@@ -14,15 +14,16 @@ if (!firebase.apps.length) {
 }
 const db = firebase.database();
 
+// LISTA PRODOTTI AGGIORNATA (SOLO I NOMI TRA PARENTESI)
 const prodottiIniziali = [
-  { name: "🥟 Casoncelli", price: 6, max: 100 },
-  { name: "🥟 Scarpinocc", price: 6, max: 100 },
-  { name: "🍞 Pane e cotechino", price: 4, max: 100 },
-  { name: "🍔 Hamburger+Patatine", price: 8, max: 120 },
-  { name: "🥬 Hamburger Veg+Patatine", price: 8, max: 20 },
-  { name: "🧆 Falafel", price: 5, max: 40 },
-  { name: "🥩 Roastbeef", price: 5, max: 40 },
-  { name: "🍟 Patatine Fritte", price: 3, max: 5000 },
+  { name: "Casoncelli", price: 6, max: 100 },
+  { name: "Scarpinocc", price: 6, max: 100 },
+  { name: "Pane e cotechino", price: 4, max: 100 },
+  { name: "Hamburger+Patatine", price: 8, max: 120 },
+  { name: "Hamburger Veg+Patatine", price: 8, max: 20 },
+  { name: "Falafel", price: 5, max: 40 },
+  { name: "Roastbeef", price: 5, max: 40 },
+  { name: "Patatine Fritte", price: 3, max: 5000 },
 ];
 
 // Elements
@@ -108,7 +109,7 @@ window.cambiaQta = function(index, delta) {
   const qtaAttuale = itemInCarrello ? itemInCarrello.qta : 0;
   const nuovaQta = qtaAttuale + delta;
 
-  if (nuovaQta > prodServer.max || nuevaQta < 0) return;
+  if (nuovaQta > prodServer.max || nuovaQta < 0) return;
 
   if (nuovaQta === 0) {
     carrello = carrello.filter(c => c.index !== index);
@@ -208,7 +209,6 @@ confirmBtn.addEventListener("click", () => {
   if (!metodoPagamento) { alert("Seleziona un metodo di pagamento!"); return; }
   if (!famiglia) { alert("Inserisci il nome della Famiglia/Persona!"); return; }
 
-  // Pulisce vecchi scontrini rimasti appesi al DOM
   const vecchioScontrino = document.getElementById("print-ticket");
   if (vecchioScontrino) vecchioScontrino.remove();
 
@@ -219,7 +219,6 @@ confirmBtn.addEventListener("click", () => {
   const dataStr = d.toLocaleDateString('it-IT', {day: '2-digit', month: '2-digit'});
   const oraStr = d.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' });
 
-  // Struttura densa: più info accorpate sulla stessa riga
   let ticketHTML = `
     <div class="ticket-header">
       <h2>CRE ORATORIO</h2>
@@ -231,10 +230,8 @@ confirmBtn.addEventListener("click", () => {
 
   carrello.forEach(item => {
     const subTot = (item.price * item.qta).toFixed(2);
-    // Rimozione totale emoji ed icone (non digerite dalle stampanti termiche)
-    let nomePulito = item.name.replace(/[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2011-\u26FF]|\uD83E[\uDD10-\uDDFF]/g, '').trim();
+    let nomePulito = item.name;
     
-    // Taglio a 18 caratteri per evitare che il nome vada a capo allungando lo scontrino
     if (nomePulito.length > 18) nomePulito = nomePulito.substring(0, 16) + "..";
 
     ticketHTML += `
@@ -247,7 +244,6 @@ confirmBtn.addEventListener("click", () => {
 
   const totaleFinale = totalPriceEl.innerText;
 
-  // Footer super compatto
   ticketHTML += `
     </div>
     <div class="ticket-footer">
@@ -271,7 +267,6 @@ confirmBtn.addEventListener("click", () => {
 
   db.ref().update(aggiornamentiDb)
     .then(() => {
-      // 300ms di ritardo per dare tempo al browser di applicare lo stile CSS di stampa
       setTimeout(() => {
         window.print();
         svuotaTutto();
