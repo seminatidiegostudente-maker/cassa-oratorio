@@ -291,7 +291,7 @@ input {
 }
 input:focus { border-color: #4f46e5; }
 
-/* ================= MODALITÀ DI PAGAMENTO ATTIVA ================= */
+/* ================= MODALITÀ DI PAGAMENTO ================= */
 .payment-section { margin-bottom: 16px; }
 .payButtons { display: flex; gap: 12px; margin-top: 6px; }
 
@@ -337,35 +337,32 @@ input:focus { border-color: #4f46e5; }
 
 
 /* ==========================================================================
-   STAMPA RIGIDA E CORRETTA PER STAMPANTE TERMICA POS-58
+   STAMPA RIGIDA CORRETTA PER STAMPANTE TERMICA POS-58
    ========================================================================== */
 
-/* NORMALE MONITOR WEB DI GIORNO */
 #print-ticket {
   display: none;
 }
 
 @media print {
-  /* 1. Blocca le dimensioni fisiche del foglio e azzera i margini del browser */
+  /* 1. Blocca le dimensioni fisiche del foglio */
   @page {
     size: 58mm auto;
     margin: 0mm !important;
   }
 
-  /* 2. Nasconde in modo distruttivo tutta l'interfaccia dell'applicazione sullo schermo */
-  html, body, #adminPanel, .container, div:not(#print-ticket):not(#print-ticket *) {
+  /* 2. Nasconde ESCLUSIVAMENTE i blocchi interfaccia dello schermo (il body rimane attivo) */
+  .container, #adminPanel {
     display: none !important;
-    height: auto !important;
   }
 
   /* 3. Forza la sola visibilità dello scontrino */
-  #print-ticket, #print-ticket * {
-    display: block !important;
-  }
-
   #print-ticket {
     display: block !important;
-    width: 52mm !important; /* Area utile stampabile reale su rotoli da 58mm */
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 52mm !important; /* Area stampabile reale su rotoli da 58mm */
     margin: 0 auto !important;
     padding: 2mm 1mm !important;
     font-family: 'Courier New', Courier, monospace !important;
@@ -375,7 +372,12 @@ input:focus { border-color: #4f46e5; }
     background: #fff !important;
   }
 
-  /* Allineamenti delle macro sezioni dello scontrino */
+  /* Forza i figli ad apparire visibili all'interno del blocco di stampa */
+  #print-ticket * {
+    display: block !important;
+  }
+
+  /* Allineamenti macro sezioni dello scontrino */
   .ticket-header { text-align: center !important; margin-bottom: 5px; }
   .ticket-header h2 { font-size: 14px !important; font-weight: bold !important; margin: 0 0 2px 0; }
   .ticket-header p { margin: 1px 0 !important; }
@@ -392,7 +394,7 @@ input:focus { border-color: #4f46e5; }
   }
 
   .ticket-col-name { text-align: left !important; flex: 1; word-break: break-all; }
-  .ticket-col-price { text-align: right !important; white-space: nowrap; padding-left: 4px; }
+  .ticket-col-price { text-align: right !important; white-space: nowrap; padding-left: 4px; display: inline-block !important; }
 
   /* Linea di chiusura e calcolo totale */
   #print-ticket .ticket-total {
@@ -409,9 +411,9 @@ input:focus { border-color: #4f46e5; }
   .ticket-footer p { margin: 2px 0 !important; text-align: left !important; }
   .ticket-footer .grazie { text-align: center !important; font-weight: bold !important; margin-top: 8px; }
 
-  /* Feed di avanzamento per evitare tagli di testo a fine scontrino */
+  /* Feed di avanzamento carta per evitare tagli di testo a fine scontrino */
   .spazio-taglio {
-    height: 25mm !important;
+    height: 20mm !important;
     display: block !important;
   }
 }

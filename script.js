@@ -198,7 +198,7 @@ function svuotaTutto() {
   updateCarrelloEInterfaccia();
 }
 
-// ================= FUNZIONE CONFERMA E STAMPA (OTTIMIZZATA PER POS-58) =================
+// ================= FUNZIONE CONFERMA E STAMPA (POS-58 OTTIMIZZATA) =================
 confirmBtn.addEventListener("click", () => {
   const famiglia = document.getElementById("famigliaInput").value.trim();
   const tavolo = document.getElementById("tavoloInput").value.trim();
@@ -212,7 +212,7 @@ confirmBtn.addEventListener("click", () => {
   const vecchioScontrino = document.getElementById("print-ticket");
   if (vecchioScontrino) vecchioScontrino.remove();
 
-  // 1. CREAZIONE STRUTTURA SCONTRINO SOLIDO
+  // 1. CREAZIONE STRUTTURA SCONTRINO
   const ticket = document.createElement("div");
   ticket.id = "print-ticket";
 
@@ -234,10 +234,10 @@ confirmBtn.addEventListener("click", () => {
 
   carrello.forEach(item => {
     const subTot = (item.price * item.qta).toFixed(2);
-    // Pulizia icone ed emoji
+    // Pulizia totale icone ed emoji (Incompatibili con stampanti termiche vecchie)
     let nomePulito = item.name.replace(/[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2011-\u26FF]|\uD83E[\uDD10-\uDDFF]/g, '').trim();
     
-    // Taglio forzato per incolonnamento perfetto su carta termica da 58mm (circa 32 caratteri Courier max)
+    // Taglio della stringa per incolonnamento perfetto su fogli corti (max 16 caratteri per il nome)
     if (nomePulito.length > 16) nomePulito = nomePulito.substring(0, 14) + "..";
 
     ticketHTML += `
@@ -268,7 +268,7 @@ confirmBtn.addEventListener("click", () => {
   ticket.innerHTML = ticketHTML;
   document.body.appendChild(ticket);
 
-  // 2. AGGIORNAMENTO DATABASE E TRIGGER DI STAMPA CON TIMEOUT DI SICUREZZA
+  // 2. AGGIORNAMENTO DATABASE E TRIGGER DI STAMPA CON TIMEOUT FLUIDO
   const aggiornamentiDb = {};
   carrello.forEach(item => {
     aggiornamentiDb[`prodotti/${item.index}/max`] = stato[item.index].max - item.qta;
@@ -276,11 +276,11 @@ confirmBtn.addEventListener("click", () => {
 
   db.ref().update(aggiornamentiDb)
     .then(() => {
-      // Lascia il tempo al thread del browser di renderizzare il biglietto prima di bloccare tutto con window.print()
+      // Timeout a 300ms per permettere al browser di applicare correttamente il layout CSS di stampa
       setTimeout(() => {
         window.print();
         svuotaTutto();
-      }, 100);
+      }, 300);
     })
     .catch((error) => {
       alert("Errore di sincronizzazione con Firebase: " + error.message);
