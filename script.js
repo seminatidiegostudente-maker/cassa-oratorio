@@ -14,15 +14,21 @@ if (!firebase.apps.length) {
 }
 const db = firebase.database();
 
+// AGGIORNATO: Aggiunto il campo 'type' per dividere Cibo e Bevande e inserite le nuove bevande
 const prodottiIniziali = [
-  { name: "Casoncelli", price: 6, max: 100 },
-  { name: "Scarpinocc", price: 6, max: 100 },
-  { name: "Pane e cotechino", price: 4, max: 100 },
-  { name: "Hamburger+Patatine", price: 8, max: 120 },
-  { name: "Hamburger Veg+Patatine", price: 8, max: 20 },
-  { name: "Falafel", price: 5, max: 40 },
-  { name: "Roastbeef", price: 5, max: 40 },
-  { name: "Patatine Fritte", price: 3, max: 5000 },
+  { name: "Casoncelli", price: 6, max: 100, type: "cibo" },
+  { name: "Scarpinocc", price: 6, max: 100, type: "cibo" },
+  { name: "Pane e cotechino", price: 4, max: 100, type: "cibo" },
+  { name: "Hamburger+Patatine", price: 8, max: 120, type: "cibo" },
+  { name: "Hamburger Veg+Patatine", price: 8, max: 20, type: "cibo" },
+  { name: "Falafel", price: 5, max: 40, type: "cibo" },
+  { name: "Roastbeef", price: 5, max: 40, type: "cibo" },
+  { name: "Patatine Fritte", price: 3, max: 5000, type: "cibo" },
+  { name: "Spritz", price: 5, max: 5000, type: "bevanda" },
+  { name: "Birra", price: 4, max: 5000, type: "bevanda" },
+  { name: "Bibita lattina", price: 1.50, max: 5000, type: "bevanda" },
+  { name: "Caffè", price: 1, max: 5000, type: "bevanda" },
+  { name: "Acqua 0.5L", price: 1, max: 5000, type: "bevanda" }
 ];
 
 // Elements
@@ -52,7 +58,7 @@ const saveIngredientsBtn = document.getElementById("saveIngredients");
 const cancelIngredientsBtn = document.getElementById("cancelIngredients");
 
 let stato = [];
-let carrello = []; // Conterrà oggetti con { idUnico, index, name, price, qta: 1, dettagli: "..." }
+let carrello = []; // Conterrà oggetti con { idUnico, index, name, price, qta: 1, dettagli: "...", type: "..." }
 let metodoPagamento = "";
 
 // Variabili temporanee per la gestione del popup ingredienti
@@ -86,7 +92,6 @@ function renderProdotti() {
   if (!stato) return;
   
   stato.forEach((prod, index) => {
-    // Calcola quanti pezzi di questo specifico prodotto (index) sono nel carrello in totale
     const qtaSelezionata = carrello.filter(c => c.index === index).length;
     const rimasti = prod.max - qtaSelezionata;
 
@@ -116,17 +121,14 @@ window.cambiaQta = function(index, delta) {
   const prodServer = stato[index];
   
   if (delta === 1) {
-    // Se è un hamburger, apriamo il popup degli ingredienti prima di inserirlo
     if (prodServer.name.includes("Hamburger")) {
       pendingIndex = index;
       pendingDelta = delta;
       apriModalIngredienti(prodServer.name);
       return; 
     }
-    // Altrimenti inserimento diretto standard
     inserisciNelCarrello(index, "");
   } else {
-    // Rimozione: toglie l'ultimo inserito di quel tipo
     const indexDaRimuovere = carrello.map(c => c.index).lastIndexOf(index);
     if (indexDaRimuovere !== -1) {
       carrello.splice(indexDaRimuovere, 1);
@@ -143,7 +145,8 @@ function inserisciNelCarrello(index, dettagli) {
     index: index,
     name: prodServer.name,
     price: prodServer.price,
-    dettagli: dettagli
+    dettagli: dettagli,
+    type: prodServer.type || "cibo" // Default a cibo se non specificato
   });
   renderProdotti();
   updateCarrelloEInterfaccia();
@@ -152,7 +155,6 @@ function inserisciNelCarrello(index, dettagli) {
 // ================= POPUP GESTIONE INGREDIENTI =================
 function apriModalIngredienti(nomeHamburger) {
   modalTitle.innerText = "Farcitura " + nomeHamburger;
-  // Resetta i checkbox a selezionati di default
   document.getElementById("ing-insalata").checked = true;
   document.getElementById("ing-formaggio").checked = true;
   document.getElementById("ing-pomodori").checked = true;
@@ -191,13 +193,11 @@ saveIngredientsBtn.addEventListener("click", () => {
   pendingDelta = null;
 });
 
-// Raggruppa i prodotti simili nel carrello SOLO per visualizzarli nel riepilogo dello schermo
 function updateCarrelloEInterfaccia() {
   summary.innerHTML = "";
   let totPezzi = carrello.length;
   let totPrezzo = 0;
 
-  // Mostra ogni singolo elemento nel riepilogo, utile per vedere le farciture diverse
   carrello.forEach((item) => {
     totPrezzo += item.price;
 
@@ -220,6 +220,7 @@ function updateCarrelloEInterfaccia() {
   });
 
   totalEl.innerText = totPezzi;
+  prodottoType = ""; 
   totalPriceEl.innerText = totPrezzo.toFixed(2);
   grandTotalEl.innerText = `€${totPrezzo.toFixed(2)}`;
   calcolaResto();
@@ -278,7 +279,7 @@ function svuotaTutto() {
   updateCarrelloEInterfaccia();
 }
 
-// ================= FUNZIONE CONFERMA E STAMPA CON DETTAGLIO FARCITURE =================
+// ================= FUNZIONE CONFERMA E STAMPA CON DIVISIONE CIBO/BEVANDE =================
 confirmBtn.addEventListener("click", () => {
   const famiglia = document.getElementById("famigliaInput").value.trim();
   const tavolo = document.getElementById("tavoloInput").value.trim();
@@ -307,7 +308,7 @@ confirmBtn.addEventListener("click", () => {
     <div class="ticket-items">
   `;
 
-  // Per lo scontrino uniamo i prodotti uguali che hanno anche gli STESSI ingredienti, ottimizzando lo spazio
+  // Compattamento dei prodotti mantenendo la distinzione degli ingredienti e del tipo
   const carrelloCompattato = [];
   carrello.forEach(item => {
     const esistente = carrelloCompattato.find(c => c.index === item.index && c.dettagli === item.dettagli);
@@ -318,21 +319,42 @@ confirmBtn.addEventListener("click", () => {
     }
   });
 
-  carrelloCompattato.forEach(item => {
-    const subTot = (item.price * item.qta).toFixed(2);
-    let nomePulito = item.name;
-    if (nomePulito.length > 22) nomePulito = nomePulito.substring(0, 20) + "..";
+  // AGGIORNATO: Divisione logica dei vettori per la stampa separata
+  const cibi = carrelloCompattato.filter(item => item.type === "cibo");
+  const bevande = carrelloCompattato.filter(item => item.type === "bevanda");
 
-    ticketHTML += `
-      <div class="ticket-row">
-        <span class="ticket-col-name">${item.qta}x ${nomePulito}</span>
-        <span class="ticket-col-price">€${subTot}</span>
-      </div>
-    `;
-    if(item.dettagli) {
-      ticketHTML += `<div class="ticket-col-details">> ${item.dettagli}</div>`;
-    }
-  });
+  // Funzione di utilità interna per generare le righe dei prodotti mantenendo lo stile CSS esistente
+  function generaRigheProdotti(lista) {
+    let html = "";
+    lista.forEach(item => {
+      const subTot = (item.price * item.qta).toFixed(2);
+      let nomePulito = item.name;
+      if (nomePulito.length > 22) nomePulito = nomePulito.substring(0, 20) + "..";
+
+      html += `
+        <div class="ticket-row">
+          <span class="ticket-col-name">${item.qta}x ${nomePulito}</span>
+          <span class="ticket-col-price">€${subTot}</span>
+        </div>
+      `;
+      if(item.dettagli) {
+        html += `<div class="ticket-col-details">> ${item.dettagli}</div>`;
+      }
+    });
+    return html;
+  }
+
+  // Sezione CIBO nella stampa
+  if (cibi.length > 0) {
+    ticketHTML += `<div style="text-align:center; font-weight:bold; margin: 4px 0 2px 0; font-size:11px;">--- CIBO ---</div>`;
+    ticketHTML += generaRigheProdotti(cibi);
+  }
+
+  // Sezione BEVANDE nella stampa
+  if (bevande.length > 0) {
+    ticketHTML += `<div style="text-align:center; font-weight:bold; margin: 6px 0 2px 0; font-size:11px;">--- BEVANDE ---</div>`;
+    ticketHTML += generaRigheProdotti(bevande);
+  }
 
   const totaleFinale = totalPriceEl.innerText;
 
@@ -352,7 +374,6 @@ confirmBtn.addEventListener("click", () => {
   ticket.innerHTML = ticketHTML;
   document.body.appendChild(ticket);
 
-  // Calcolo dei decrementi totali da inviare a Firebase per ciascun prodotto
   const conteggioPerIndex = {};
   carrello.forEach(item => {
     conteggioPerIndex[item.index] = (conteggioPerIndex[item.index] || 0) + 1;
