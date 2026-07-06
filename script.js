@@ -14,7 +14,6 @@ if (!firebase.apps.length) {
 }
 const db = firebase.database();
 
-// AGGIORNATO: Inserite le nuove bevande (Vini), il Dolce e i rispettivi campi 'type'
 const prodottiIniziali = [
   { name: "Casoncelli", price: 6, max: 100, type: "cibo" },
   { name: "Scarpinocc", price: 6, max: 100, type: "cibo" },
@@ -61,7 +60,7 @@ const modalTitle = document.getElementById("modalTitle");
 const saveIngredientsBtn = document.getElementById("saveIngredients");
 const cancelIngredientsBtn = document.getElementById("cancelIngredients");
 
-// AGGIORNATO: Elementi del nuovo popup Vino
+// Elementi popup Vino
 const vinoModal = document.getElementById("vinoModal");
 const vinoModalTitle = document.getElementById("vinoModalTitle");
 const cancelVinoBtn = document.getElementById("cancelVino");
@@ -135,7 +134,6 @@ window.cambiaQta = function(index, delta) {
       apriModalIngredienti(prodServer.name);
       return; 
     }
-    // AGGIORNATO: Controllo se il prodotto cliccato è un vino
     if (prodServer.name.toLowerCase().includes("vino")) {
       pendingIndex = index;
       pendingDelta = delta;
@@ -208,7 +206,7 @@ saveIngredientsBtn.addEventListener("click", () => {
   pendingDelta = null;
 });
 
-// ================= AGGIORNATO: POPUP GESTIONE SCELTA VINO =================
+// ================= POPUP GESTIONE SCELTA VINO =================
 function apriModalVino(nomeVino) {
   vinoModalTitle.innerText = "Seleziona Tipo: " + nomeVino;
   vinoModal.style.display = "flex";
@@ -312,7 +310,7 @@ function svuotaTutto() {
   updateCarrelloEInterfaccia();
 }
 
-// ================= FUNZIONE CONFERMA E STAMPA DIVISA IN 3 SEZIONI =================
+// ================= FUNZIONE CONFERMA E STAMPA SEZIONATA CON SPAZIATURA EXTRA STRAZZO =================
 confirmBtn.addEventListener("click", () => {
   const famiglia = document.getElementById("famigliaInput").value.trim();
   const tavolo = document.getElementById("tavoloInput").value.trim();
@@ -351,7 +349,6 @@ confirmBtn.addEventListener("click", () => {
     }
   });
 
-  // AGGIORNATO: Divisione logica dei 3 vettori per la stampa
   const cibi = carrelloCompattato.filter(item => item.type === "cibo");
   const bevande = carrelloCompattato.filter(item => item.type === "bevanda");
   const dolci = carrelloCompattato.filter(item => item.type === "dolce");
@@ -382,15 +379,15 @@ confirmBtn.addEventListener("click", () => {
     ticketHTML += generaRigheProdotti(cibi);
   }
 
-  // Sezione BEVANDE nella stampa
+  // Sezione BEVANDE nella stampa con margine extra (25px) e linea di strappo tratteggiata
   if (bevande.length > 0) {
-    ticketHTML += `<div style="text-align:center; font-weight:bold; margin: 6px 0 2px 0; font-size:11px;">--- BEVANDE ---</div>`;
+    ticketHTML += `<div style="text-align:center; font-weight:bold; margin: 25px 0 4px 0; border-top: 1px dashed #000; padding-top: 5px; font-size:11px;">--- BEVANDE ---</div>`;
     ticketHTML += generaRigheProdotti(bevande);
   }
 
-  // Sezione DOLCI nella stampa
+  // Sezione DOLCI nella stampa con margine extra (25px) e linea di strappo tratteggiata
   if (dolci.length > 0) {
-    ticketHTML += `<div style="text-align:center; font-weight:bold; margin: 6px 0 2px 0; font-size:11px;">--- DOLCI ---</div>`;
+    ticketHTML += `<div style="text-align:center; font-weight:bold; margin: 25px 0 4px 0; border-top: 1px dashed #000; padding-top: 5px; font-size:11px;">--- DOLCI ---</div>`;
     ticketHTML += generaRigheProdotti(dolci);
   }
 
@@ -398,7 +395,7 @@ confirmBtn.addEventListener("click", () => {
 
   ticketHTML += `
     </div>
-    <div class="ticket-footer">
+    <div class="ticket-footer" style="margin-top: 15px;">
       <div class="ticket-total">
         <span>TOTALE:</span>
         <span>€${totaleFinale}</span>
