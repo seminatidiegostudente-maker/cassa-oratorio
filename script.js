@@ -310,7 +310,7 @@ function svuotaTutto() {
   updateCarrelloEInterfaccia();
 }
 
-// ================= FUNZIONE CONFERMA E STAMPA SEZIONATA CON SPAZIATURA EXTRA STRAZZO =================
+// ================= FUNZIONE CONFERMA E STAMPA CON SPAZIATURA ULTRA GENEROSA =================
 confirmBtn.addEventListener("click", () => {
   const famiglia = document.getElementById("famigliaInput").value.trim();
   const tavolo = document.getElementById("tavoloInput").value.trim();
@@ -379,15 +379,15 @@ confirmBtn.addEventListener("click", () => {
     ticketHTML += generaRigheProdotti(cibi);
   }
 
-  // Sezione BEVANDE nella stampa con margine extra (25px) e linea di strappo tratteggiata
+  // Sezione BEVANDE nella stampa con margine ultra generoso (45px) per uno strappo senza pensieri
   if (bevande.length > 0) {
-    ticketHTML += `<div style="text-align:center; font-weight:bold; margin: 25px 0 4px 0; border-top: 1px dashed #000; padding-top: 5px; font-size:11px;">--- BEVANDE ---</div>`;
+    ticketHTML += `<div style="text-align:center; font-weight:bold; margin: 45px 0 4px 0; border-top: 1px dashed #000; padding-top: 5px; font-size:11px;">--- BEVANDE ---</div>`;
     ticketHTML += generaRigheProdotti(bevande);
   }
 
-  // Sezione DOLCI nella stampa con margine extra (25px) e linea di strappo tratteggiata
+  // Sezione DOLCI nella stampa con margine ultra generoso (45px) per uno strappo senza pensieri
   if (dolci.length > 0) {
-    ticketHTML += `<div style="text-align:center; font-weight:bold; margin: 25px 0 4px 0; border-top: 1px dashed #000; padding-top: 5px; font-size:11px;">--- DOLCI ---</div>`;
+    ticketHTML += `<div style="text-align:center; font-weight:bold; margin: 45px 0 4px 0; border-top: 1px dashed #000; padding-top: 5px; font-size:11px;">--- DOLCI ---</div>`;
     ticketHTML += generaRigheProdotti(dolci);
   }
 
