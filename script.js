@@ -14,7 +14,7 @@ if (!firebase.apps.length) {
 }
 const db = firebase.database();
 
-// AGGIORNATO: Aggiunto il campo 'type' per dividere Cibo e Bevande e inserite le nuove bevande
+// AGGIORNATO: Inserite le nuove bevande (Vini), il Dolce e i rispettivi campi 'type'
 const prodottiIniziali = [
   { name: "Casoncelli", price: 6, max: 100, type: "cibo" },
   { name: "Scarpinocc", price: 6, max: 100, type: "cibo" },
@@ -27,8 +27,12 @@ const prodottiIniziali = [
   { name: "Spritz", price: 5, max: 5000, type: "bevanda" },
   { name: "Birra", price: 4, max: 5000, type: "bevanda" },
   { name: "Bibita lattina", price: 1.50, max: 5000, type: "bevanda" },
+  { name: "Vino B/R 1L", price: 5, max: 5000, type: "bevanda" },
+  { name: "Vino B/R 1/2L", price: 2.50, max: 5000, type: "bevanda" },
+  { name: "Vino Bicchiere", price: 1.50, max: 5000, type: "bevanda" },
   { name: "Caffè", price: 1, max: 5000, type: "bevanda" },
-  { name: "Acqua 0.5L", price: 1, max: 5000, type: "bevanda" }
+  { name: "Acqua 0.5L", price: 1, max: 5000, type: "bevanda" },
+  { name: "Dolce", price: 3, max: 5000, type: "dolce" }
 ];
 
 // Elements
@@ -57,11 +61,15 @@ const modalTitle = document.getElementById("modalTitle");
 const saveIngredientsBtn = document.getElementById("saveIngredients");
 const cancelIngredientsBtn = document.getElementById("cancelIngredients");
 
+// AGGIORNATO: Elementi del nuovo popup Vino
+const vinoModal = document.getElementById("vinoModal");
+const vinoModalTitle = document.getElementById("vinoModalTitle");
+const cancelVinoBtn = document.getElementById("cancelVino");
+
 let stato = [];
-let carrello = []; // Conterrà oggetti con { idUnico, index, name, price, qta: 1, dettagli: "...", type: "..." }
+let carrello = []; 
 let metodoPagamento = "";
 
-// Variabili temporanee per la gestione del popup ingredienti
 let pendingIndex = null;
 let pendingDelta = null;
 
@@ -127,6 +135,13 @@ window.cambiaQta = function(index, delta) {
       apriModalIngredienti(prodServer.name);
       return; 
     }
+    // AGGIORNATO: Controllo se il prodotto cliccato è un vino
+    if (prodServer.name.toLowerCase().includes("vino")) {
+      pendingIndex = index;
+      pendingDelta = delta;
+      apriModalVino(prodServer.name);
+      return;
+    }
     inserisciNelCarrello(index, "");
   } else {
     const indexDaRimuovere = carrello.map(c => c.index).lastIndexOf(index);
@@ -146,7 +161,7 @@ function inserisciNelCarrello(index, dettagli) {
     name: prodServer.name,
     price: prodServer.price,
     dettagli: dettagli,
-    type: prodServer.type || "cibo" // Default a cibo se non specificato
+    type: prodServer.type || "cibo"
   });
   renderProdotti();
   updateCarrelloEInterfaccia();
@@ -193,6 +208,25 @@ saveIngredientsBtn.addEventListener("click", () => {
   pendingDelta = null;
 });
 
+// ================= AGGIORNATO: POPUP GESTIONE SCELTA VINO =================
+function apriModalVino(nomeVino) {
+  vinoModalTitle.innerText = "Seleziona Tipo: " + nomeVino;
+  vinoModal.style.display = "flex";
+}
+
+window.selezionaTipoVino = function(tipo) {
+  vinoModal.style.display = "none";
+  inserisciNelCarrello(pendingIndex, tipo);
+  pendingIndex = null;
+  pendingDelta = null;
+};
+
+cancelVinoBtn.addEventListener("click", () => {
+  vinoModal.style.display = "none";
+  pendingIndex = null;
+  pendingDelta = null;
+});
+
 function updateCarrelloEInterfaccia() {
   summary.innerHTML = "";
   let totPezzi = carrello.length;
@@ -220,7 +254,6 @@ function updateCarrelloEInterfaccia() {
   });
 
   totalEl.innerText = totPezzi;
-  prodottoType = ""; 
   totalPriceEl.innerText = totPrezzo.toFixed(2);
   grandTotalEl.innerText = `€${totPrezzo.toFixed(2)}`;
   calcolaResto();
@@ -279,7 +312,7 @@ function svuotaTutto() {
   updateCarrelloEInterfaccia();
 }
 
-// ================= FUNZIONE CONFERMA E STAMPA CON DIVISIONE CIBO/BEVANDE =================
+// ================= FUNZIONE CONFERMA E STAMPA DIVISA IN 3 SEZIONI =================
 confirmBtn.addEventListener("click", () => {
   const famiglia = document.getElementById("famigliaInput").value.trim();
   const tavolo = document.getElementById("tavoloInput").value.trim();
@@ -308,7 +341,6 @@ confirmBtn.addEventListener("click", () => {
     <div class="ticket-items">
   `;
 
-  // Compattamento dei prodotti mantenendo la distinzione degli ingredienti e del tipo
   const carrelloCompattato = [];
   carrello.forEach(item => {
     const esistente = carrelloCompattato.find(c => c.index === item.index && c.dettagli === item.dettagli);
@@ -319,11 +351,11 @@ confirmBtn.addEventListener("click", () => {
     }
   });
 
-  // AGGIORNATO: Divisione logica dei vettori per la stampa separata
+  // AGGIORNATO: Divisione logica dei 3 vettori per la stampa
   const cibi = carrelloCompattato.filter(item => item.type === "cibo");
   const bevande = carrelloCompattato.filter(item => item.type === "bevanda");
+  const dolci = carrelloCompattato.filter(item => item.type === "dolce");
 
-  // Funzione di utilità interna per generare le righe dei prodotti mantenendo lo stile CSS esistente
   function generaRigheProdotti(lista) {
     let html = "";
     lista.forEach(item => {
@@ -354,6 +386,12 @@ confirmBtn.addEventListener("click", () => {
   if (bevande.length > 0) {
     ticketHTML += `<div style="text-align:center; font-weight:bold; margin: 6px 0 2px 0; font-size:11px;">--- BEVANDE ---</div>`;
     ticketHTML += generaRigheProdotti(bevande);
+  }
+
+  // Sezione DOLCI nella stampa
+  if (dolci.length > 0) {
+    ticketHTML += `<div style="text-align:center; font-weight:bold; margin: 6px 0 2px 0; font-size:11px;">--- DOLCI ---</div>`;
+    ticketHTML += generaRigheProdotti(dolci);
   }
 
   const totaleFinale = totalPriceEl.innerText;

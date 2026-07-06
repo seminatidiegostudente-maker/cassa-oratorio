@@ -119,6 +119,19 @@
   </div>
 </div>
 
+<div id="vinoModal" class="modal-overlay">
+  <div class="modal-content">
+    <h3 id="vinoModalTitle">Seleziona Tipo Vino</h3>
+    <div class="vino-options-list">
+      <button class="btn-vino-opt bianco" onclick="selezionaTipoVino('Bianco')">🥂 Bianco</button>
+      <button class="btn-vino-opt rosso" onclick="selezionaTipoVino('Rosso')">🍷 Rosso</button>
+    </div>
+    <div class="modal-actions" style="margin-top: 15px;">
+      <button id="cancelVino" class="btn-modal-cancel">Annulla</button>
+    </div>
+  </div>
+</div>
+
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
 <script src="script.js"></script>

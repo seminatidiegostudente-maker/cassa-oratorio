@@ -347,12 +347,12 @@ input:focus { border-color: #4f46e5; }
 .restoBox .resto-value { font-size: 24px; font-weight: 900; color: #dc2626; }
 
 
-/* ================= MODAL POPUP INGREDIENTI ================= */
+/* ================= MODAL POPUP INGREDIENTI E VINO ================= */
 .modal-overlay {
   position: fixed;
   top: 0; left: 0; width: 100%; height: 100%;
   background: rgba(0, 0, 0, 0.5);
-  display: none; /* Gestito via JS */
+  display: none; 
   justify-content: center;
   align-items: center;
   z-index: 9999;
@@ -374,12 +374,27 @@ input:focus { border-color: #4f46e5; }
   text-align: center;
 }
 
-.ingredients-list {
+.ingredients-list, .vino-options-list {
   display: flex;
   flex-direction: column;
   gap: 12px;
   margin-bottom: 20px;
 }
+
+/* AGGIORNATO: Stile pulsanti grandi selezione vino */
+.btn-vino-opt {
+  width: 100%;
+  height: 55px;
+  font-size: 18px;
+  font-weight: 700;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: transform 0.1s ease;
+}
+.btn-vino-opt:active { transform: scale(0.98); }
+.btn-vino-opt.bianco { background: #fef08a; color: #854d0e; }
+.btn-vino-opt.rosso { background: #fca5a5; color: #991b1b; }
 
 .check-container {
   display: flex;
@@ -472,7 +487,6 @@ input:focus { border-color: #4f46e5; }
   .ticket-col-name { text-align: left !important; flex: 1; word-break: break-all; }
   .ticket-col-price { text-align: right !important; white-space: nowrap; padding-left: 2px; display: inline-block !important; }
 
-  /* Dettaglio ingredienti sotto l'hamburger nella stampa */
   .ticket-col-details {
     font-size: 9px !important;
     font-style: italic !important;
