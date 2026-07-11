@@ -14,16 +14,15 @@ if (!firebase.apps.length) {
 }
 const db = firebase.database();
 
-// Menu aggiornato per il Sabato sera
+// Menu definitivo con scorte aggiornate e gestione Gnocchi a popup
 const prodottiIniziali = [
-  { name: "Casoncelli", price: 6, max: 50, type: "cibo" },
-  { name: "Scarpinöcc", price: 6, max: 50, type: "cibo" },
-  { name: "Gnocchi", price: 6, max: 50, type: "cibo" },
-  { name: "Grigliata mista", price: 7, max: 50, type: "cibo" },
-  { name: "Costine", price: 6, max: 30, type: "cibo" },
-  { name: "Spiedini", price: 6, max: 30, type: "cibo" },
-  { name: "Pane e cotechino", price: 4, max: 50, type: "cibo" },
-  { name: "Piatto falafel", price: 6, max: 50, type: "cibo" },
+  { name: "Casoncelli", price: 6, max: 100, type: "cibo" },
+  { name: "Scarpinöcc", price: 6, max: 100, type: "cibo" },
+  { name: "Gnocchi", price: 6, max: 80, type: "cibo" },
+  { name: "Grigliata mista", price: 7, max: 70, type: "cibo" },
+  { name: "Costine", price: 6, max: 50, type: "cibo" },
+  { name: "Spiedini", price: 6, max: 50, type: "cibo" },
+  { name: "Pane e cotechino", price: 4, max: 80, type: "cibo" },
   { name: "Roastbeaf", price: 6, max: 50, type: "cibo" },
   { name: "Patatine", price: 3, max: 5000, type: "cibo" },
   { name: "Spritz", price: 5, max: 5000, type: "bevanda" },
@@ -237,7 +236,7 @@ cancelVinoBtn.addEventListener("click", () => {
   pendingDelta = null;
 });
 
-// ================= POPUP GESTIONE SCELTA GNOCCHI =================
+// ================= POPUP GESTIONE SCELTA GNOCCHI (AGGIORNATO CON PESTO) =================
 function apriModalGnocchi() {
   gnocchiModal.style.display = "flex";
 }
@@ -254,7 +253,6 @@ cancelGnocchiBtn.addEventListener("click", () => {
   pendingIndex = null;
   pendingDelta = null;
 });
-
 
 function updateCarrelloEInterfaccia() {
   summary.innerHTML = "";
