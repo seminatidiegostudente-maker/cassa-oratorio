@@ -23,7 +23,7 @@ const prodottiIniziali = [
   { name: "Costine", price: 6, max: 50, type: "cibo" },
   { name: "Spiedini", price: 6, max: 50, type: "cibo" },
   { name: "Pane e cotechino", price: 4, max: 80, type: "cibo" },
-  { name: "Roastbeaf", price: 6, max: 50, type: "cibo" },
+  { name: "Roastbeef", price: 6, max: 50, type: "cibo" },
   { name: "Patatine", price: 3, max: 5000, type: "cibo" },
   { name: "Spritz", price: 5, max: 5000, type: "bevanda" },
   { name: "Birra", price: 4, max: 5000, type: "bevanda" },
