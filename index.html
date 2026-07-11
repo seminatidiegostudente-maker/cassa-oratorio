@@ -132,6 +132,20 @@
   </div>
 </div>
 
+<div id="gnocchiModal" class="modal-overlay">
+  <div class="modal-content">
+    <h3 style="color: #111827;">Condimento Gnocchi</h3>
+    <div class="vino-options-list">
+      <button class="btn-vino-opt" style="background: #fef08a; color: #854d0e;" onclick="selezionaCondimentoGnocchi('Burro')">🧈 Burro</button>
+      <button class="btn-vino-opt" style="background: #fca5a5; color: #991b1b;" onclick="selezionaCondimentoGnocchi('Pomodoro')">🍅 Pomodoro</button>
+      <button class="btn-vino-opt" style="background: #bfdbfe; color: #1e3a8a;" onclick="selezionaCondimentoGnocchi('Zola')">🧀 Zola</button>
+    </div>
+    <div class="modal-actions" style="margin-top: 15px;">
+      <button id="cancelGnocchi" class="btn-modal-cancel">Annulla</button>
+    </div>
+  </div>
+</div>
+
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
 <script src="script.js"></script>

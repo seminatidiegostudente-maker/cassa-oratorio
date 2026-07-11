@@ -14,12 +14,14 @@ if (!firebase.apps.length) {
 }
 const db = firebase.database();
 
-// Menu aggiornato per il Venerdì
+// Menu aggiornato per il Sabato sera
 const prodottiIniziali = [
   { name: "Casoncelli", price: 6, max: 50, type: "cibo" },
   { name: "Scarpinöcc", price: 6, max: 50, type: "cibo" },
-  { name: "Hamburger e patatine", price: 8, max: 90, type: "cibo" },
-  { name: "Hamburger Veg e patatine", price: 8, max: 30, type: "cibo" },
+  { name: "Gnocchi", price: 6, max: 50, type: "cibo" },
+  { name: "Grigliata mista", price: 7, max: 50, type: "cibo" },
+  { name: "Costine", price: 6, max: 30, type: "cibo" },
+  { name: "Spiedini", price: 6, max: 30, type: "cibo" },
   { name: "Pane e cotechino", price: 4, max: 50, type: "cibo" },
   { name: "Piatto falafel", price: 6, max: 50, type: "cibo" },
   { name: "Roastbeaf", price: 6, max: 50, type: "cibo" },
@@ -61,10 +63,13 @@ const modalTitle = document.getElementById("modalTitle");
 const saveIngredientsBtn = document.getElementById("saveIngredients");
 const cancelIngredientsBtn = document.getElementById("cancelIngredients");
 
-// Elementi popup Vino
+// Elementi popup Vino e Gnocchi
 const vinoModal = document.getElementById("vinoModal");
 const vinoModalTitle = document.getElementById("vinoModalTitle");
 const cancelVinoBtn = document.getElementById("cancelVino");
+
+const gnocchiModal = document.getElementById("gnocchiModal");
+const cancelGnocchiBtn = document.getElementById("cancelGnocchi");
 
 let stato = [];
 let carrello = []; 
@@ -139,6 +144,12 @@ window.cambiaQta = function(index, delta) {
       pendingIndex = index;
       pendingDelta = delta;
       apriModalVino(prodServer.name);
+      return;
+    }
+    if (prodServer.name.toLowerCase().includes("gnocchi")) {
+      pendingIndex = index;
+      pendingDelta = delta;
+      apriModalGnocchi();
       return;
     }
     inserisciNelCarrello(index, "");
@@ -225,6 +236,25 @@ cancelVinoBtn.addEventListener("click", () => {
   pendingIndex = null;
   pendingDelta = null;
 });
+
+// ================= POPUP GESTIONE SCELTA GNOCCHI =================
+function apriModalGnocchi() {
+  gnocchiModal.style.display = "flex";
+}
+
+window.selezionaCondimentoGnocchi = function(condimento) {
+  gnocchiModal.style.display = "none";
+  inserisciNelCarrello(pendingIndex, condimento);
+  pendingIndex = null;
+  pendingDelta = null;
+};
+
+cancelGnocchiBtn.addEventListener("click", () => {
+  gnocchiModal.style.display = "none";
+  pendingIndex = null;
+  pendingDelta = null;
+});
+
 
 function updateCarrelloEInterfaccia() {
   summary.innerHTML = "";
