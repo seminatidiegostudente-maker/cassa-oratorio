@@ -18,12 +18,12 @@ const db = firebase.database();
 const prodottiIniziali = [
   { name: "Casoncelli", price: 6, max: 100, type: "cibo" },
   { name: "Scarpinöcc", price: 6, max: 100, type: "cibo" },
-  { name: "Gnocchi", price: 6, max: 80, type: "cibo" },
+  { name: "Gnocchi", price: 6, max: 60, type: "cibo" },
   { name: "Grigliata mista", price: 7, max: 70, type: "cibo" },
   { name: "Costine", price: 6, max: 50, type: "cibo" },
   { name: "Spiedini", price: 6, max: 50, type: "cibo" },
-  { name: "Pane e cotechino", price: 4, max: 80, type: "cibo" },
-  { name: "Roastbeef", price: 6, max: 50, type: "cibo" },
+  { name: "Pane e cotechino", price: 4, max: 50, type: "cibo" },
+  { name: "Roastbeef", price: 6, max: 20, type: "cibo" },
   { name: "Patatine", price: 3, max: 5000, type: "cibo" },
   { name: "Spritz", price: 5, max: 5000, type: "bevanda" },
   { name: "Birra", price: 4, max: 5000, type: "bevanda" },
@@ -33,7 +33,7 @@ const prodottiIniziali = [
   { name: "Vino Bicchiere", price: 1.50, max: 5000, type: "bevanda" },
   { name: "Caffè", price: 1, max: 5000, type: "bevanda" },
   { name: "Acqua 0.5L", price: 1, max: 5000, type: "bevanda" },
-  { name: "Tiramisù", price: 3, max: 30, type: "dolce" }
+  { name: "Tiramisù", price: 3, max: 40, type: "dolce" }
 ];
 
 // Elements
