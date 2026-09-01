@@ -36,8 +36,7 @@ const prodottiIniziali = [
 
   // BEVANDE
   { name: "Spritz", price: 5, max: 5000, type: "bevanda" },
-  { name: "Birra", price: 4, max: 5000, type: "bevanda" },
-  { name: "Birra 3€", price: 3, max: 5000, type: "bevanda" },
+  { name: "Birra", price: 3, max: 5000, type: "bevanda" },
   { name: "Ceres", price: 4, max: 5000, type: "bevanda" },
   { name: "Amaro", price: 3, max: 5000, type: "bevanda" },
   { name: "Bibita lattina", price: 1.50, max: 5000, type: "bevanda" },
