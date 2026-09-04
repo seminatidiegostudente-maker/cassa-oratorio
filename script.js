@@ -14,7 +14,7 @@ if (!firebase.apps.length) {
 }
 const db = firebase.database();
 
-// Menu aggiornato al Venerdì 4 Settembre con scorte e bevande complete
+// Menu definitivo con scorte e bevande aggiornate
 const prodottiIniziali = [
   // CIBO
   { name: "Casoncelli", price: 7, max: 100, type: "cibo" },
@@ -36,7 +36,8 @@ const prodottiIniziali = [
 
   // BEVANDE
   { name: "Spritz", price: 5, max: 5000, type: "bevanda" },
-  { name: "Birra", price: 3, max: 5000, type: "bevanda" },
+  { name: "Birra", price: 4, max: 5000, type: "bevanda" },
+  { name: "Birra 3€", price: 3, max: 5000, type: "bevanda" },
   { name: "Ceres", price: 4, max: 5000, type: "bevanda" },
   { name: "Amaro", price: 3, max: 5000, type: "bevanda" },
   { name: "Bibita lattina", price: 1.50, max: 5000, type: "bevanda" },
@@ -45,6 +46,7 @@ const prodottiIniziali = [
   { name: "Vino Bicchiere", price: 1.50, max: 5000, type: "bevanda" },
   { name: "Caffè", price: 1, max: 5000, type: "bevanda" },
   { name: "Acqua 0.5L", price: 1, max: 5000, type: "bevanda" },
+  { name: "Acqua 1.5L", price: 2, max: 5000, type: "bevanda" },
 
   // DOLCI
   { name: "Dolce", price: 3, max: 5000, type: "dolce" }
@@ -76,13 +78,17 @@ const modalTitle = document.getElementById("modalTitle");
 const saveIngredientsBtn = document.getElementById("saveIngredients");
 const cancelIngredientsBtn = document.getElementById("cancelIngredients");
 
-// Elementi popup Vino e Gnocchi
+// Elementi popup Vino, Gnocchi e Acqua
 const vinoModal = document.getElementById("vinoModal");
 const vinoModalTitle = document.getElementById("vinoModalTitle");
 const cancelVinoBtn = document.getElementById("cancelVino");
 
 const gnocchiModal = document.getElementById("gnocchiModal");
 const cancelGnocchiBtn = document.getElementById("cancelGnocchi");
+
+const acquaModal = document.getElementById("acquaModal");
+const acquaModalTitle = document.getElementById("acquaModalTitle");
+const cancelAcquaBtn = document.getElementById("cancelAcqua");
 
 let stato = [];
 let carrello = []; 
@@ -163,6 +169,12 @@ window.cambiaQta = function(index, delta) {
       pendingIndex = index;
       pendingDelta = delta;
       apriModalGnocchi();
+      return;
+    }
+    if (prodServer.name.toLowerCase().includes("acqua")) {
+      pendingIndex = index;
+      pendingDelta = delta;
+      apriModalAcqua(prodServer.name);
       return;
     }
     inserisciNelCarrello(index, "");
@@ -250,7 +262,7 @@ cancelVinoBtn.addEventListener("click", () => {
   pendingDelta = null;
 });
 
-// ================= POPUP GESTIONE SCELTA GNOCCHI (AGGIORNATO CON PESTO) =================
+// ================= POPUP GESTIONE SCELTA GNOCCHI =================
 function apriModalGnocchi() {
   gnocchiModal.style.display = "flex";
 }
@@ -264,6 +276,25 @@ window.selezionaCondimentoGnocchi = function(condimento) {
 
 cancelGnocchiBtn.addEventListener("click", () => {
   gnocchiModal.style.display = "none";
+  pendingIndex = null;
+  pendingDelta = null;
+});
+
+// ================= POPUP GESTIONE SCELTA ACQUA =================
+function apriModalAcqua(nomeAcqua) {
+  acquaModalTitle.innerText = "Seleziona: " + nomeAcqua;
+  acquaModal.style.display = "flex";
+}
+
+window.selezionaTipoAcqua = function(tipo) {
+  acquaModal.style.display = "none";
+  inserisciNelCarrello(pendingIndex, tipo);
+  pendingIndex = null;
+  pendingDelta = null;
+};
+
+cancelAcquaBtn.addEventListener("click", () => {
+  acquaModal.style.display = "none";
   pendingIndex = null;
   pendingDelta = null;
 });

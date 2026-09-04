@@ -92,6 +92,7 @@
 
 </div>
 
+<!-- Modal Hamburger -->
 <div id="ingredientsModal" class="modal-overlay">
   <div class="modal-content">
     <h3 id="modalTitle">Personalizza Hamburger</h3>
@@ -119,6 +120,7 @@
   </div>
 </div>
 
+<!-- Modal Vino -->
 <div id="vinoModal" class="modal-overlay">
   <div class="modal-content">
     <h3 id="vinoModalTitle">Seleziona Tipo Vino</h3>
@@ -132,6 +134,7 @@
   </div>
 </div>
 
+<!-- Modal Gnocchi -->
 <div id="gnocchiModal" class="modal-overlay">
   <div class="modal-content">
     <h3 style="color: #111827;">Condimento Gnocchi</h3>
@@ -143,6 +146,20 @@
     </div>
     <div class="modal-actions" style="margin-top: 15px;">
       <button id="cancelGnocchi" class="btn-modal-cancel">Annulla</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Acqua -->
+<div id="acquaModal" class="modal-overlay">
+  <div class="modal-content">
+    <h3 id="acquaModalTitle">Seleziona Tipo Acqua</h3>
+    <div class="vino-options-list">
+      <button class="btn-vino-opt" style="background: #e0f2fe; color: #0369a1;" onclick="selezionaTipoAcqua('Naturale')">💧 Naturale</button>
+      <button class="btn-vino-opt" style="background: #bae6fd; color: #075985;" onclick="selezionaTipoAcqua('Frizzante')">🫧 Frizzante</button>
+    </div>
+    <div class="modal-actions" style="margin-top: 15px;">
+      <button id="cancelAcqua" class="btn-modal-cancel">Annulla</button>
     </div>
   </div>
 </div>
