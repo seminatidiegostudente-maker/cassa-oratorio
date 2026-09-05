@@ -14,12 +14,13 @@ if (!firebase.apps.length) {
 }
 const db = firebase.database();
 
-// Menu definitivo con scorte e bevande aggiornate
+// Menu aggiornato a Sabato 5 Settembre (bevande invariate)
 const prodottiIniziali = [
   // CIBO
   { name: "Casoncelli", price: 7, max: 100, type: "cibo" },
   { name: "Scarpinöcc", price: 7, max: 100, type: "cibo" },
-  { name: "Gnocchi", price: 6, max: 50, type: "cibo" },
+  { name: "Malloreddus alla salsiccia", price: 6, max: 50, type: "cibo" },
+  { name: "Malloreddus al sugo", price: 5, max: 50, type: "cibo" },
   { name: "Lasagne ragù", price: 7, max: 30, type: "cibo" },
   { name: "Lasagne pesto", price: 6, max: 30, type: "cibo" },
   { name: "Melanzane alla parmigiana", price: 6, max: 30, type: "cibo" },
@@ -28,16 +29,14 @@ const prodottiIniziali = [
   { name: "Spiedini", price: 6, max: 60, type: "cibo" },
   { name: "Pane e cotechino", price: 4, max: 60, type: "cibo" },
   { name: "Roastbeef", price: 7, max: 50, type: "cibo" },
-  { name: "Tagliere salumi e formaggi", price: 7, max: 5000, type: "cibo" },
-  { name: "Hamburger + patatine", price: 8, max: 100, type: "cibo" },
-  { name: "Hamburger vegetariano + patatine", price: 8, max: 50, type: "cibo" },
+  { name: "Tagliere salumi e formaggi", price: 7, max: 50, type: "cibo" },
+  { name: "Fritto di calamari", price: 8, max: 100, type: "cibo" },
   { name: "Verdure grigliate", price: 4, max: 50, type: "cibo" },
   { name: "Patatine", price: 3, max: 5000, type: "cibo" },
 
-  // BEVANDE
+  // BEVANDE (invariate)
   { name: "Spritz", price: 5, max: 5000, type: "bevanda" },
-  { name: "Birra", price: 4, max: 5000, type: "bevanda" },
-  { name: "Birra 3€", price: 3, max: 5000, type: "bevanda" },
+  { name: "Birra alla spina", price: 3, max: 5000, type: "bevanda" },
   { name: "Ceres", price: 4, max: 5000, type: "bevanda" },
   { name: "Amaro", price: 3, max: 5000, type: "bevanda" },
   { name: "Bibita lattina", price: 1.50, max: 5000, type: "bevanda" },
