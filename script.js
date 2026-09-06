@@ -14,29 +14,31 @@ if (!firebase.apps.length) {
 }
 const db = firebase.database();
 
-// Menu aggiornato a Sabato 5 Settembre (bevande invariate)
+// Menu aggiornato a Domenica 6 Settembre con scorte e bevande sistemate
 const prodottiIniziali = [
   // CIBO
   { name: "Casoncelli", price: 7, max: 100, type: "cibo" },
   { name: "Scarpinöcc", price: 7, max: 100, type: "cibo" },
-  { name: "Malloreddus alla salsiccia", price: 6, max: 50, type: "cibo" },
-  { name: "Malloreddus al sugo", price: 5, max: 50, type: "cibo" },
+  { name: "Gnocchi", price: 6, max: 50, type: "cibo" },
   { name: "Lasagne ragù", price: 7, max: 30, type: "cibo" },
   { name: "Lasagne pesto", price: 6, max: 30, type: "cibo" },
-  { name: "Melanzane alla parmigiana", price: 6, max: 30, type: "cibo" },
+  { name: "Melanzane alla parmigiana", price: 6, max: 0, type: "cibo" },
   { name: "Grigliata mista", price: 8, max: 60, type: "cibo" },
   { name: "Costine", price: 6, max: 60, type: "cibo" },
   { name: "Spiedini", price: 6, max: 60, type: "cibo" },
   { name: "Pane e cotechino", price: 4, max: 60, type: "cibo" },
   { name: "Roastbeef", price: 7, max: 50, type: "cibo" },
   { name: "Tagliere salumi e formaggi", price: 7, max: 50, type: "cibo" },
-  { name: "Fritto di calamari", price: 8, max: 100, type: "cibo" },
+  { name: "Polenta e brasato", price: 7, max: 50, type: "cibo" },
+  { name: "Polenta e formaggio", price: 5, max: 5000, type: "cibo" },
+  { name: "Polenta", price: 3, max: 50, type: "cibo" },
   { name: "Verdure grigliate", price: 4, max: 50, type: "cibo" },
   { name: "Patatine", price: 3, max: 5000, type: "cibo" },
 
-  // BEVANDE (invariate)
+  // BEVANDE
   { name: "Spritz", price: 5, max: 5000, type: "bevanda" },
-  { name: "Birra alla spina", price: 3, max: 5000, type: "bevanda" },
+  { name: "Birra alla spina", price: 4, max: 5000, type: "bevanda" },
+  { name: "Birra in bottiglia", price: 3, max: 5000, type: "bevanda" },
   { name: "Ceres", price: 4, max: 5000, type: "bevanda" },
   { name: "Amaro", price: 3, max: 5000, type: "bevanda" },
   { name: "Bibita lattina", price: 1.50, max: 5000, type: "bevanda" },
