@@ -14,28 +14,24 @@ if (!firebase.apps.length) {
 }
 const db = firebase.database();
 
-// Menu aggiornato a Domenica 6 Settembre con scorte e bevande sistemate
+// Menu aggiornato a Venerdì 11 Settembre
 const prodottiIniziali = [
   // CIBO
   { name: "Casoncelli", price: 7, max: 100, type: "cibo" },
   { name: "Scarpinöcc", price: 7, max: 100, type: "cibo" },
   { name: "Gnocchi", price: 6, max: 50, type: "cibo" },
-  { name: "Lasagne ragù", price: 7, max: 30, type: "cibo" },
-  { name: "Lasagne pesto", price: 6, max: 30, type: "cibo" },
-  { name: "Melanzane alla parmigiana", price: 6, max: 0, type: "cibo" },
   { name: "Grigliata mista", price: 8, max: 60, type: "cibo" },
   { name: "Costine", price: 6, max: 60, type: "cibo" },
   { name: "Spiedini", price: 6, max: 60, type: "cibo" },
   { name: "Pane e cotechino", price: 4, max: 60, type: "cibo" },
   { name: "Roastbeef", price: 7, max: 50, type: "cibo" },
-  { name: "Tagliere salumi e formaggi", price: 7, max: 50, type: "cibo" },
-  { name: "Polenta e brasato", price: 7, max: 50, type: "cibo" },
-  { name: "Polenta e formaggio", price: 5, max: 50, type: "cibo" },
-  { name: "Polenta", price: 3, max: 50, type: "cibo" },
+  { name: "Tagliere salumi e formaggi", price: 7, max: 5000, type: "cibo" },
+  { name: "Hamburger + patatine", price: 8, max: 50, type: "cibo" },
+  { name: "Hamburger vegetariano + patatine", price: 8, max: 50, type: "cibo" },
   { name: "Verdure grigliate", price: 4, max: 50, type: "cibo" },
   { name: "Patatine", price: 3, max: 5000, type: "cibo" },
 
-  // BEVANDE
+  // BEVANDE (invariate)
   { name: "Spritz", price: 5, max: 5000, type: "bevanda" },
   { name: "Birra alla spina", price: 4, max: 5000, type: "bevanda" },
   { name: "Birra in bottiglia", price: 3, max: 5000, type: "bevanda" },
@@ -50,7 +46,7 @@ const prodottiIniziali = [
   { name: "Acqua 1.5L", price: 2, max: 5000, type: "bevanda" },
 
   // DOLCI
-  { name: "Dolce", price: 3, max: 5000, type: "dolce" }
+  { name: "Dolce", price: 3, max: 50, type: "dolce" }
 ];
 
 // Elements
