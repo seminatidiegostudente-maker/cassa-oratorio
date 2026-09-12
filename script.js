@@ -28,7 +28,7 @@ const prodottiIniziali = [
   { name: "Pane e cotechino", price: 4, max: 60, type: "cibo" },
   { name: "Roastbeef", price: 7, max: 50, type: "cibo" },
   { name: "Tagliere salumi e formaggi", price: 7, max: 50, type: "cibo" },
-  { name: "Polenta e formaggio", price: 5, max: 5000, type: "cibo" },
+  { name: "Polenta e formaggio", price: 5, max: 50, type: "cibo" },
   { name: "Polenta", price: 3, max: 50, type: "cibo" },
   { name: "Verdure grigliate", price: 4, max: 50, type: "cibo" },
   { name: "Patatine", price: 3, max: 5000, type: "cibo" },
