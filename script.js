@@ -14,21 +14,20 @@ if (!firebase.apps.length) {
 }
 const db = firebase.database();
 
-// Menu aggiornato a Sabato 12 Settembre
+// Menu aggiornato a Domenica 13 Settembre
 const prodottiIniziali = [
   // CIBO
   { name: "Casoncelli", price: 7, max: 100, type: "cibo" },
   { name: "Scarpinöcc", price: 7, max: 100, type: "cibo" },
-  { name: "Gnocchi alla Sorrentina", price: 6, max: 40, type: "cibo" },
+  { name: "Gnocchi", price: 6, max: 50, type: "cibo" },
   { name: "Lasagne ai carciofi", price: 7, max: 30, type: "cibo" },
-  { name: "Trippa", price: 7, max: 50, type: "cibo" },
   { name: "Grigliata mista", price: 8, max: 60, type: "cibo" },
   { name: "Costine", price: 6, max: 60, type: "cibo" },
   { name: "Spiedini", price: 6, max: 60, type: "cibo" },
   { name: "Pane e cotechino", price: 4, max: 60, type: "cibo" },
   { name: "Roastbeef", price: 7, max: 50, type: "cibo" },
   { name: "Tagliere salumi e formaggi", price: 7, max: 50, type: "cibo" },
-  { name: "Polenta e formaggio", price: 5, max: 50, type: "cibo" },
+  { name: "Polenta e formaggio", price: 5, max: 5000, type: "cibo" },
   { name: "Polenta", price: 3, max: 50, type: "cibo" },
   { name: "Verdure grigliate", price: 4, max: 50, type: "cibo" },
   { name: "Patatine", price: 3, max: 5000, type: "cibo" },
@@ -50,6 +49,8 @@ const prodottiIniziali = [
   // DOLCI
   { name: "Dolce", price: 3, max: 50, type: "dolce" }
 ];
+
+
 
 // Elements
 const itemsContainer = document.getElementById("items");
